@@ -1,8 +1,9 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { prisma } from "../prismaClient.js";
 import { validate } from "../middleware/validate.js";
-import { registerSchema } from "../schemas/AuthSchemas.js";
+import { registerSchema, loginSchema } from "../schemas/AuthSchemas.js";
 
 const router = Router();
 
@@ -33,6 +34,54 @@ router.post("/register", validate(registerSchema), async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+router.post("/login", validate(loginSchema), async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false,
+        message: "Usuario no encontrado" 
+      });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      return res.status(401).json({ 
+        success: false,
+        message: "Contraseña incorrecta" 
+      });
+    }
+
+    // Generar JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return res.json({
+      success: true,
+      message: "Login exitoso",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error interno del servidor" 
+    });
   }
 });
 
