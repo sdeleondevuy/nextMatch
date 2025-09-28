@@ -1,5 +1,5 @@
-require('dotenv').config();
-const express = require('express');
+import 'dotenv/config';
+import express from 'express';
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -7,8 +7,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 
 // Rutas
-const userRoutes = require('./modules/users/UserController');
-app.use('/auth', userRoutes);
+import authRoutes from './routes/authRoutes.js';
+app.use('/auth', authRoutes);
 
 // Servidor
 app.listen(port, () => console.log(`Servidor corriendo en puerto ${port}`));
