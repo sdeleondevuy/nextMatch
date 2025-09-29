@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -15,6 +16,9 @@ app.use(express.json({ limit: '10mb' }));
 
 // Rutas
 app.use('/auth', authRoutes);
+
+// ... otras configuraciones
+app.use('/user', userRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
