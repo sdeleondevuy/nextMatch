@@ -1,0 +1,95 @@
+const API_URL = "http://localhost:5000";
+
+// Función helper para hacer requests
+async function apiRequest(endpoint, options = {}) {
+  const url = `${API_URL}${endpoint}`;
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `Error ${response.status}`);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+}
+
+// Función helper para obtener token del localStorage
+function getAuthToken() {
+  return localStorage.getItem("token");
+}
+
+// Función helper para headers con autenticación
+function getAuthHeaders() {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// ===== AUTH ENDPOINTS =====
+
+export async function registerUser(userData) {
+  return apiRequest("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(userData),
+  });
+}
+
+export async function loginUser(credentials) {
+  return apiRequest("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(credentials),
+  });
+}
+
+export async function getCurrentUser() {
+  return apiRequest("/auth/me", {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function updateProfile(profileData) {
+  return apiRequest("/auth/profile", {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(profileData),
+  });
+}
+
+// ===== HEALTH CHECK =====
+
+export async function checkHealth() {
+  return apiRequest("/health", {
+    method: "GET",
+  });
+}
+
+// ===== TOKEN MANAGEMENT =====
+
+export function saveToken(token) {
+  localStorage.setItem("token", token);
+}
+
+export function removeToken() {
+  localStorage.removeItem("token");
+}
+
+export function getToken() {
+  return getAuthToken();
+}
+
+export function isAuthenticated() {
+  return !!getAuthToken();
+}

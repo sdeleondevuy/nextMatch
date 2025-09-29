@@ -1,16 +1,20 @@
-const jwt = require('jsonwebtoken');
+import { verifyToken, extractToken } from '../utils/jwt.js';
+import { errorResponse } from '../utils/response.js';
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  try {
+    const token = extractToken(req);
 
-  if (!token) return res.status(401).json({ message: 'Token faltante' });
+    if (!token) {
+      return errorResponse(res, 'Token de acceso requerido', 401);
+    }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Token inválido' });
-    req.user = user; // agregamos info del usuario al request
+    const user = verifyToken(token);
+    req.user = user;
     next();
-  });
+  } catch (error) {
+    return errorResponse(res, 'Token inválido o expirado', 403);
+  }
 };
 
-module.exports = authenticateToken;
+export default authenticateToken;
