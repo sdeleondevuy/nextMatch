@@ -33,30 +33,54 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">
-        <Link to="/">NextMatch MVP</Link>
-      </div>
-      
-      <div className="navbar-menu">
-        <Link to="/">Inicio</Link>
-        
-        {loading ? (
-          <span>Cargando...</span>
-        ) : user ? (
-          <>
-            <Link to="/profile">Mi Perfil</Link>
-            <span className="user-greeting">Hola, {user.name}</span>
-            <button onClick={handleLogout} className="btn-logout">
-              Cerrar Sesión
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/register">Registrarse</Link>
-            <Link to="/login">Iniciar Sesión</Link>
-          </>
-        )}
+    <nav className="header-gradient shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Link to="/" className="text-3xl font-bold text-white font-sans hover:text-blue-200 transition-colors">
+                NextMatch
+              </Link>
+              <p className="text-blue-100 text-sm mt-1">Tu plataforma de tenis</p>
+            </div>
+          </div>
+          
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <Link to="/" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                Inicio
+              </Link>
+              
+              {loading ? (
+                <span className="text-blue-200 px-3 py-2 text-sm font-medium">Cargando...</span>
+              ) : user ? (
+                <>
+                  <Link to="/profile" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Mi Perfil
+                  </Link>
+                  <span className="text-blue-200 px-3 py-2 text-sm font-medium">
+                    Hola, {user.name}
+                  </span>
+                  <button 
+                    onClick={handleLogout} 
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Iniciar Sesión
+                  </Link>
+                  <Link to="/register" className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    Registrarse
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
   );
