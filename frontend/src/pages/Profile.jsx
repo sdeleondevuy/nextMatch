@@ -45,7 +45,7 @@ function Profile() {
       }
 
       if (sportsResponse.success) {
-        setUserSports(sportsResponse.data);
+        setUserSports(sportsResponse.data.sports || []);
       }
     } catch (error) {
       console.error("Error cargando perfil:", error);
@@ -122,8 +122,17 @@ function Profile() {
     navigate("/login");
   };
 
-  const handleSportUpdate = (updatedSports) => {
-    setUserSports(updatedSports);
+  const handleSportUpdate = async (updatedData) => {
+    // Recargar los deportes del usuario desde la API para obtener los datos completos
+    try {
+      const sportsResponse = await getUserSports();
+      if (sportsResponse.success) {
+        const sports = sportsResponse.data.sports || [];
+        setUserSports(sports);
+      }
+    } catch (error) {
+      console.error('Error recargando deportes:', error);
+    }
   };
 
   const handleOpenSportSelector = () => {

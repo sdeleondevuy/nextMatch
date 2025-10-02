@@ -1,0 +1,104 @@
+/* Splash Screen - Fullscreen */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 9999;
+  overflow: hidden;
+  
+  /* Animación de entrada - 2 segundos */
+  opacity: 0;
+  animation: splashFadeIn 2s ease-out forwards;
+}
+
+.splash-screen.splash-exit {
+  /* Animación de salida - 2 segundos */
+  animation: splashFadeOut 2s ease-in forwards;
+}
+
+.splash-logo-image {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Fallback text styling */
+.splash-fallback {
+  text-align: center;
+  color: white;
+}
+
+.splash-fallback h1 {
+  font-size: 4rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  color: #2d5016;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.splash-fallback p {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #2d5016;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Animaciones ajustadas a los nuevos tiempos */
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* Responsive adjustments para fallback text */
+@media (max-width: 768px) {
+  .splash-fallback h1 {
+    font-size: 3rem;
+  }
+  
+  .splash-fallback p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .splash-fallback h1 {
+    font-size: 2.5rem;
+  }
+  
+  .splash-fallback p {
+    font-size: 0.9rem;
+  }
+}
+
+/* La imagen siempre ocupa toda la pantalla en cualquier orientación */
+@media (orientation: landscape) {
+  .splash-logo-image {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+  }
+}
