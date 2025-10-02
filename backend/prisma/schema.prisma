@@ -17,11 +17,11 @@ model User {
   birthDate    DateTime
   age          Int
   password     String
-  initPoints   Int?     // Puntos iniciales del usuario (opcional)
   createdAt    DateTime @default(now())
   
   // Relaciones
   userSports   UserSport[]
+  userPoints   UserPoints?
 }
 
 model Sport {
@@ -45,6 +45,18 @@ model UserSport {
   
   // Índice único para evitar duplicados
   @@unique([userId, sportId])
+}
+
+model UserPoints {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
+  initPoints   Int      // Puntos iniciales configurados por el usuario
+  actualPoints Int      // Puntos actuales (inicialmente igual a initPoints)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relaciones
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 

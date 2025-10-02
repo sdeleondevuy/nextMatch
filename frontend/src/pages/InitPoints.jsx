@@ -21,9 +21,9 @@ function InitPoints() {
       const response = await getCurrentUser();
       if (response.success) {
         setUser(response.data);
-        // Si ya tiene initPoints, pre-cargar el valor
-        if (response.data.initPoints) {
-          setInitPointsValue(response.data.initPoints.toString());
+        // Si ya tiene puntos configurados, pre-cargar el valor
+        if (response.data.points && response.data.points.initPoints) {
+          setInitPointsValue(response.data.points.initPoints.toString());
         }
       }
     } catch (error) {

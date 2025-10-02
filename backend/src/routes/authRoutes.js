@@ -88,7 +88,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario con sus deportes
+    // Buscar usuario con sus deportes y puntos
     const user = await prisma.user.findUnique({ 
       where: { email: email.toLowerCase() },
       include: {
@@ -100,6 +100,12 @@ router.post("/login", validate(loginSchema), async (req, res) => {
                 name: true
               }
             }
+          }
+        },
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
           }
         }
       }
@@ -123,7 +129,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
 
     // Validar estado del usuario
     const hasSports = user.userSports && user.userSports.length > 0;
-    const hasInitPoints = user.initPoints !== null && user.initPoints !== undefined;
+    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
 
     // Determinar el estado y la próxima acción
     let status = "complete";
@@ -150,7 +156,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       email: user.email,
       birthDate: user.birthDate,
       age: user.age,
-      initPoints: user.initPoints
+      points: user.userPoints
     };
 
     const sports = user.userSports.map(us => ({
@@ -190,7 +196,13 @@ router.get("/me", authenticateToken, async (req, res) => {
         email: true,
         birthDate: true,
         age: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
@@ -272,7 +284,13 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
         email: true,
         birthDate: true,
         age: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
@@ -294,22 +312,39 @@ router.put("/initpoints", authenticateToken, async (req, res) => {
       return errorResponse(res, "Los puntos iniciales deben ser un número positivo", 400);
     }
 
-    // Actualizar usuario con initPoints
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: { initPoints },
-      select: {
-        id: true,
-        name: true,
-        lastName: true,
-        username: true,
-        email: true,
-        initPoints: true,
-        createdAt: true
+    // Crear o actualizar UserPoints
+    const userPoints = await prisma.userPoints.upsert({
+      where: { userId },
+      update: {
+        initPoints,
+        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
+      },
+      create: {
+        userId,
+        initPoints,
+        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            username: true,
+            email: true,
+            createdAt: true
+          }
+        }
       }
     });
 
-    return successResponse(res, user, "Puntos iniciales configurados exitosamente");
+    return successResponse(res, {
+      user: userPoints.user,
+      points: {
+        initPoints: userPoints.initPoints,
+        actualPoints: userPoints.actualPoints
+      }
+    }, "Puntos iniciales configurados exitosamente");
   } catch (error) {
     console.error("Error configurando puntos iniciales:", error);
     return errorResponse(res, "Error interno del servidor");
@@ -321,7 +356,7 @@ router.get("/validate", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    // Obtener usuario con sus deportes
+    // Obtener usuario con sus deportes y puntos
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -330,7 +365,6 @@ router.get("/validate", authenticateToken, async (req, res) => {
         lastName: true,
         username: true,
         email: true,
-        initPoints: true,
         userSports: {
           include: {
             sport: {
@@ -339,6 +373,12 @@ router.get("/validate", authenticateToken, async (req, res) => {
                 name: true
               }
             }
+          }
+        },
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
           }
         }
       }
@@ -351,8 +391,8 @@ router.get("/validate", authenticateToken, async (req, res) => {
     // Validar si tiene deportes seleccionados
     const hasSports = user.userSports && user.userSports.length > 0;
     
-    // Validar si tiene initPoints cargados
-    const hasInitPoints = user.initPoints !== null && user.initPoints !== undefined;
+    // Validar si tiene puntos configurados
+    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
 
     // Determinar el estado y la próxima acción
     let status = "complete";
@@ -376,7 +416,7 @@ router.get("/validate", authenticateToken, async (req, res) => {
         lastName: user.lastName,
         username: user.username,
         email: user.email,
-        initPoints: user.initPoints
+        points: user.userPoints
       },
       sports: user.userSports.map(us => ({
         id: us.sport.id,
@@ -414,7 +454,13 @@ router.get("/internal/uuid/:uuid", authenticateToken, async (req, res) => {
         email: true,
         birthDate: true,
         age: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
