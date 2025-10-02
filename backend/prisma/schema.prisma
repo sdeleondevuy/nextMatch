@@ -8,26 +8,24 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @unique @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   name         String
   lastName     String
-  cedula       String   @unique
   username     String   @unique
+  legalId      String   @unique
   email        String   @unique
   birthDate    DateTime
   age          Int
-  department   String
   password     String
   createdAt    DateTime @default(now())
   
   // Relaciones
   userSports   UserSport[]
+  userPoints   UserPoints?
 }
 
 model Sport {
-  id           Int      @id @default(autoincrement())
-  uuid         String   @unique @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   name         String   @unique
   createdAt    DateTime @default(now())
   
@@ -36,17 +34,29 @@ model Sport {
 }
 
 model UserSport {
-  id        Int      @id @default(autoincrement())
-  userUuid  String   @db.Uuid
-  sportUuid String   @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  sportId   String   @db.Uuid
   createdAt DateTime @default(now())
   
   // Relaciones
-  user      User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-  sport     Sport    @relation(fields: [sportUuid], references: [uuid], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sport     Sport    @relation(fields: [sportId], references: [id], onDelete: Cascade)
   
   // Índice único para evitar duplicados
-  @@unique([userUuid, sportUuid])
+  @@unique([userId, sportId])
+}
+
+model UserPoints {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
+  initPoints   Int      // Puntos iniciales configurados por el usuario
+  actualPoints Int      // Puntos actuales (inicialmente igual a initPoints)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relaciones
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 

@@ -39,9 +39,9 @@ function Navbar() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link to="/" className="text-3xl font-bold text-white font-sans hover:text-blue-200 transition-colors">
-                NextMatch
+                JSM
               </Link>
-              <p className="text-blue-100 text-sm mt-1">Tu plataforma de tenis</p>
+              <p className="text-blue-100 text-sm mt-1">JuegoSetMatch</p>
             </div>
           </div>
           
@@ -70,7 +70,7 @@ function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  <Link to="/" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     Iniciar Sesión
                   </Link>
                   <Link to="/register" className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors">

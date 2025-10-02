@@ -23,24 +23,14 @@ router.get("/", async (req, res) => {
 // GET /sports/user - Obtener deportes del usuario autenticado
 router.get("/user", authenticateToken, async (req, res) => {
   try {
-    // Obtener el UUID del usuario desde la base de datos
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: { uuid: true }
-    });
-
-    if (!user) {
-      return errorResponse(res, "Usuario no encontrado", 404);
-    }
-
-    const userUuid = user.uuid;
+    const userId = req.user.userId;
 
     const userSports = await prisma.userSport.findMany({
-      where: { userUuid },
+      where: { userId },
       include: {
         sport: {
           select: {
-            uuid: true,
+            id: true,
             name: true
           }
         }
@@ -59,27 +49,17 @@ router.get("/user", authenticateToken, async (req, res) => {
 // POST /sports/user - Agregar deporte al usuario autenticado
 router.post("/user", authenticateToken, async (req, res) => {
   try {
-    const { sportUuid } = req.body;
+    const { sportId } = req.body;
 
-    if (!sportUuid) {
-      return errorResponse(res, "sportUuid es requerido", 400);
+    if (!sportId) {
+      return errorResponse(res, "sportId es requerido", 400);
     }
 
-    // Obtener el UUID del usuario desde la base de datos
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: { uuid: true }
-    });
-
-    if (!user) {
-      return errorResponse(res, "Usuario no encontrado", 404);
-    }
-
-    const userUuid = user.uuid;
+    const userId = req.user.userId;
 
     // Verificar que el deporte existe
     const sport = await prisma.sport.findUnique({
-      where: { uuid: sportUuid }
+      where: { id: sportId }
     });
 
     if (!sport) {
@@ -89,9 +69,9 @@ router.post("/user", authenticateToken, async (req, res) => {
     // Verificar que el usuario no tenga ya este deporte
     const existingUserSport = await prisma.userSport.findUnique({
       where: {
-        userUuid_sportUuid: {
-          userUuid: userUuid,
-          sportUuid: sportUuid
+        userId_sportId: {
+          userId: userId,
+          sportId: sportId
         }
       }
     });
@@ -103,13 +83,13 @@ router.post("/user", authenticateToken, async (req, res) => {
     // Agregar el deporte al usuario
     const userSport = await prisma.userSport.create({
       data: {
-        userUuid: userUuid,
-        sportUuid: sportUuid
+        userId: userId,
+        sportId: sportId
       },
       include: {
         sport: {
           select: {
-            uuid: true,
+            id: true,
             name: true
           }
         }
@@ -123,29 +103,18 @@ router.post("/user", authenticateToken, async (req, res) => {
   }
 });
 
-// DELETE /sports/user/:sportUuid - Eliminar deporte del usuario autenticado
-router.delete("/user/:sportUuid", authenticateToken, async (req, res) => {
+// DELETE /sports/user/:sportId - Eliminar deporte del usuario autenticado
+router.delete("/user/:sportId", authenticateToken, async (req, res) => {
   try {
-    const { sportUuid } = req.params;
-
-    // Obtener el UUID del usuario desde la base de datos
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: { uuid: true }
-    });
-
-    if (!user) {
-      return errorResponse(res, "Usuario no encontrado", 404);
-    }
-
-    const userUuid = user.uuid;
+    const { sportId } = req.params;
+    const userId = req.user.userId;
 
     // Buscar la relación usuario-deporte
     const userSport = await prisma.userSport.findUnique({
       where: {
-        userUuid_sportUuid: {
-          userUuid: userUuid,
-          sportUuid: sportUuid
+        userId_sportId: {
+          userId: userId,
+          sportId: sportId
         }
       },
       include: {
@@ -164,9 +133,9 @@ router.delete("/user/:sportUuid", authenticateToken, async (req, res) => {
     // Eliminar la relación
     await prisma.userSport.delete({
       where: {
-        userUuid_sportUuid: {
-          userUuid: userUuid,
-          sportUuid: sportUuid
+        userId_sportId: {
+          userId: userId,
+          sportId: sportId
         }
       }
     });
@@ -181,55 +150,59 @@ router.delete("/user/:sportUuid", authenticateToken, async (req, res) => {
 // PUT /sports/user - Actualizar deportes del usuario (reemplazar todos)
 router.put("/user", authenticateToken, async (req, res) => {
   try {
-    const { sportUuids } = req.body;
-    
-    // Obtener el UUID del usuario desde la base de datos
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      select: { uuid: true }
-    });
+    const { sportIds } = req.body;
+    const userId = req.user.userId;
 
-    if (!user) {
-      return errorResponse(res, "Usuario no encontrado", 404);
-    }
-
-    const userUuid = user.uuid;
-
-    if (!Array.isArray(sportUuids)) {
-      return errorResponse(res, "sportUuids debe ser un array", 400);
+    if (!Array.isArray(sportIds)) {
+      return errorResponse(res, "sportIds debe ser un array", 400);
     }
 
     // Verificar que todos los deportes existen
     const sports = await prisma.sport.findMany({
       where: {
-        uuid: {
-          in: sportUuids
+        id: {
+          in: sportIds
         }
       }
     });
 
-    if (sports.length !== sportUuids.length) {
+    if (sports.length !== sportIds.length) {
       return errorResponse(res, "Uno o más deportes no existen", 400);
     }
 
     // Eliminar todos los deportes actuales del usuario
     await prisma.userSport.deleteMany({
       where: {
-        userUuid: userUuid
+        userId: userId
       }
     });
 
     // Agregar los nuevos deportes
-    if (sportUuids.length > 0) {
+    if (sportIds.length > 0) {
       await prisma.userSport.createMany({
-        data: sportUuids.map(sportUuid => ({
-          userUuid: userUuid,
-          sportUuid: sportUuid
+        data: sportIds.map(sportId => ({
+          userId: userId,
+          sportId: sportId
         }))
       });
     }
 
-    return successResponse(res, { sportUuids }, "Deportes actualizados exitosamente");
+    // Obtener los deportes actualizados del usuario
+    const updatedUserSports = await prisma.userSport.findMany({
+      where: { userId },
+      include: {
+        sport: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    const userSports = updatedUserSports.map(us => us.sport);
+
+    return successResponse(res, { sports: userSports }, "Deportes actualizados exitosamente");
   } catch (error) {
     console.error("Error actualizando deportes del usuario:", error);
     return errorResponse(res, "Error interno del servidor");

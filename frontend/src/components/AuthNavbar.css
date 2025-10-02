@@ -1,0 +1,153 @@
+/* Auth Navbar - Delicate and Mobile-First */
+.auth-navbar {
+  background: white;
+  border-bottom: 2px solid #1e40af; /* Línea azul de separación */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 50px; /* Desktop más pequeño */
+}
+
+.auth-navbar-container {
+  max-width: 100%;
+  height: 100%;
+  padding: 0 10px; /* Desktop padding por defecto */
+  display: flex;
+  align-items: center; /* Centrado vertical perfecto */
+  justify-content: flex-start; /* Alineado a la izquierda */
+}
+
+.auth-navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alineado a la izquierda */
+  width: 100%;
+  height: 100%;
+  gap: 4px; /* Espacio mínimo entre flecha y logo */
+}
+
+/* Back Arrow */
+.back-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #1e40af; /* Mismo azul que el botón de la home */
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.back-arrow:hover {
+  background: rgba(30, 64, 175, 0.1);
+  color: #1d4ed8;
+  transform: translateX(-2px);
+}
+
+/* Logo section */
+.auth-navbar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: left; /* Alineado a la izquierda */
+  height: 100%;
+  padding: 0; /* Sin padding */
+  margin: 0; /* Sin margin */
+}
+
+.logo-image {
+  height: 55px; /* Desktop reducido 10px */
+  width: auto;
+  object-fit: contain;
+  padding: 0; /* Sin padding */
+  margin: 0; /* Sin margin */
+  display: block; /* Asegurar que esté alineado correctamente */
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af; /* Texto azul */
+  text-decoration: none;
+  font-family: 'Arial', sans-serif;
+}
+
+.logo-text:hover {
+  color: #1d4ed8; /* Azul más oscuro en hover */
+}
+
+/* Title section removed - now in body */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .auth-navbar {
+    height: 45px; /* Tablet navbar más pequeño */
+  }
+  
+  .auth-navbar-container {
+    padding: 0 4px; /* Tablet padding */
+  }
+  
+  .auth-navbar-content {
+    gap: 3px; /* Espacio mínimo en tablet */
+  }
+  
+  .back-arrow {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .logo-image {
+    height: 50px; /* Tablet logo reducido 10px */
+  }
+  
+  .logo-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-navbar {
+    height: 60px; /* Móvil navbar más pequeño */
+  }
+  
+  .auth-navbar-container {
+    padding: 0 2px; /* Móvil padding */
+  }
+  
+  .auth-navbar-content {
+    gap: 2px; /* Espacio mínimo en móvil */
+  }
+  
+  .back-arrow {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .back-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .logo-image {
+    height: 65px; /* Móvil logo reducido 10px */
+  }
+  
+  .logo-text {
+    font-size: 1.125rem;
+  }
+}
+
+/* Desktop adjustments */
+@media (min-width: 769px) {
+  .auth-navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 10px; /* Desktop padding exacto */
+  }
+  
+  .logo-image {
+    height: 55px; /* Desktop logo reducido 10px */
+  }
+}

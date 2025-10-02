@@ -21,7 +21,7 @@ export const registerSchema = z.object({
     .min(2, { message: "El apellido debe tener al menos 2 caracteres" })
     .max(50, { message: "El apellido no puede exceder 50 caracteres" })
     .trim(),
-  cedula: z.string()
+  legalId: z.string()
     .min(7, { message: "La cédula debe tener al menos 7 caracteres" })
     .max(10, { message: "La cédula no puede exceder 10 caracteres" })
     .regex(/^[0-9]+$/, { message: "La cédula debe contener solo números" })
@@ -40,10 +40,6 @@ export const registerSchema = z.object({
       const age = today.getFullYear() - birthDate.getFullYear();
       return age >= 13 && age <= 120;
     }, { message: "Debes tener entre 13 y 120 años" }),
-  department: z.string()
-    .min(2, { message: "El departamento debe tener al menos 2 caracteres" })
-    .max(50, { message: "El departamento no puede exceder 50 caracteres" })
-    .trim(),
   password: passwordSchema,
 });
 
@@ -81,11 +77,6 @@ export const updateProfileSchema = z.object({
       const age = today.getFullYear() - birthDate.getFullYear();
       return age >= 13 && age <= 120;
     }, { message: "Debes tener entre 13 y 120 años" })
-    .optional(),
-  department: z.string()
-    .min(2, { message: "El departamento debe tener al menos 2 caracteres" })
-    .max(50, { message: "El departamento no puede exceder 50 caracteres" })
-    .trim()
     .optional(),
 });
 

@@ -12,7 +12,7 @@ const router = Router();
 // POST /auth/register
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    const { name, lastName, cedula, username, email, birthDate, department, password } = req.body;
+    const { name, lastName, legalId, username, email, birthDate, password } = req.body;
 
     // Verificar si el usuario ya existe por email, username o cédula
     const existingUser = await prisma.user.findFirst({
@@ -20,7 +20,7 @@ router.post("/register", validate(registerSchema), async (req, res) => {
         OR: [
           { email: email.toLowerCase() },
           { username: username },
-          { cedula: cedula }
+          { legalId: legalId }
         ]
       }
     });
@@ -32,7 +32,7 @@ router.post("/register", validate(registerSchema), async (req, res) => {
       if (existingUser.username === username) {
         return errorResponse(res, "El username ya está en uso", 400);
       }
-      if (existingUser.cedula === cedula) {
+      if (existingUser.legalId === legalId) {
         return errorResponse(res, "La cédula ya está registrada", 400);
       }
     }
@@ -54,12 +54,11 @@ router.post("/register", validate(registerSchema), async (req, res) => {
       data: { 
         name: name.trim(),
         lastName: lastName.trim(),
-        cedula: cedula.trim(),
+        legalId: legalId.trim(),
         username: username.trim(),
         email: email.toLowerCase(),
         birthDate: birthDateObj,
         age: finalAge,
-        department: department.trim(),
         password: hashedPassword 
       },
     });
@@ -67,15 +66,13 @@ router.post("/register", validate(registerSchema), async (req, res) => {
     // Respuesta exitosa (sin contraseña)
     const userResponse = {
       id: user.id,
-      uuid: user.uuid,
       name: user.name,
       lastName: user.lastName,
-      cedula: user.cedula,
+      legalId: user.legalId,
       username: user.username,
       email: user.email,
       birthDate: user.birthDate,
       age: user.age,
-      department: user.department,
       createdAt: user.createdAt
     };
 
@@ -91,8 +88,29 @@ router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Buscar usuario
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    // Buscar usuario con sus deportes y puntos
+    const user = await prisma.user.findUnique({ 
+      where: { email: email.toLowerCase() },
+      include: {
+        userSports: {
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        },
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
+      }
+    });
+    
     if (!user) {
       return errorResponse(res, "Credenciales inválidas", 401);
     }
@@ -106,28 +124,58 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     // Generar token JWT
     const token = generateToken({ 
       userId: user.id,
-      userUuid: user.uuid,
       email: user.email 
     });
+
+    // Validar estado del usuario
+    const hasSports = user.userSports && user.userSports.length > 0;
+    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
+
+    // Determinar el estado y la próxima acción
+    let status = "complete";
+    let nextAction = "/profile";
+    let message = "Login exitoso";
+
+    if (!hasSports) {
+      status = "missing_sports";
+      nextAction = "/selectSports";
+      message = "Usuario necesita seleccionar al menos un deporte";
+    } else if (!hasInitPoints) {
+      status = "missing_initpoints";
+      nextAction = "/initpoints";
+      message = "Usuario necesita configurar puntos iniciales";
+    }
 
     // Respuesta exitosa
     const userResponse = {
       id: user.id,
-      uuid: user.uuid,
       name: user.name,
       lastName: user.lastName,
-      cedula: user.cedula,
+      legalId: user.legalId,
       username: user.username,
       email: user.email,
       birthDate: user.birthDate,
       age: user.age,
-      department: user.department,
+      points: user.userPoints
     };
+
+    const sports = user.userSports.map(us => ({
+      id: us.sport.id,
+      name: us.sport.name
+    }));
 
     return successResponse(res, {
       user: userResponse,
-      token
-    }, "Login exitoso");
+      sports,
+      token,
+      validation: {
+        status,
+        nextAction,
+        message,
+        hasSports,
+        hasInitPoints
+      }
+    }, message);
   } catch (error) {
     console.error("Error en login:", error);
     return errorResponse(res, "Error interno del servidor");
@@ -141,16 +189,20 @@ router.get("/me", authenticateToken, async (req, res) => {
       where: { id: req.user.userId },
       select: {
         id: true,
-        uuid: true,
         name: true,
         lastName: true,
-        cedula: true,
+        legalId: true,
         username: true,
         email: true,
         birthDate: true,
         age: true,
-        department: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
@@ -168,7 +220,7 @@ router.get("/me", authenticateToken, async (req, res) => {
 // PUT /auth/profile - Actualizar perfil del usuario
 router.put("/profile", authenticateToken, validate(updateProfileSchema), async (req, res) => {
   try {
-    const { name, lastName, username, email, birthDate, department } = req.body;
+    const { name, lastName, username, email, birthDate } = req.body;
     const userId = req.user.userId;
 
     // Verificar si el email ya existe (si se está actualizando)
@@ -205,7 +257,6 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
     if (lastName) updateData.lastName = lastName.trim();
     if (username) updateData.username = username.trim();
     if (email) updateData.email = email.toLowerCase();
-    if (department) updateData.department = department.trim();
     
     // Si se actualiza la fecha de nacimiento, recalcular la edad
     if (birthDate) {
@@ -226,16 +277,20 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
       data: updateData,
       select: {
         id: true,
-        uuid: true,
         name: true,
         lastName: true,
-        cedula: true,
+        legalId: true,
         username: true,
         email: true,
         birthDate: true,
         age: true,
-        department: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
@@ -246,25 +301,166 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
   }
 });
 
+// PUT /auth/initpoints - Configurar puntos iniciales del usuario
+router.put("/initpoints", authenticateToken, async (req, res) => {
+  try {
+    const { initPoints } = req.body;
+    const userId = req.user.userId;
+
+    // Validar que initPoints sea un número positivo
+    if (!initPoints || typeof initPoints !== 'number' || initPoints <= 0) {
+      return errorResponse(res, "Los puntos iniciales deben ser un número positivo", 400);
+    }
+
+    // Crear o actualizar UserPoints
+    const userPoints = await prisma.userPoints.upsert({
+      where: { userId },
+      update: {
+        initPoints,
+        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
+      },
+      create: {
+        userId,
+        initPoints,
+        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastName: true,
+            username: true,
+            email: true,
+            createdAt: true
+          }
+        }
+      }
+    });
+
+    return successResponse(res, {
+      user: userPoints.user,
+      points: {
+        initPoints: userPoints.initPoints,
+        actualPoints: userPoints.actualPoints
+      }
+    }, "Puntos iniciales configurados exitosamente");
+  } catch (error) {
+    console.error("Error configurando puntos iniciales:", error);
+    return errorResponse(res, "Error interno del servidor");
+  }
+});
+
+// GET /auth/validate - Validar estado del usuario (deportes e initPoints)
+router.get("/validate", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Obtener usuario con sus deportes y puntos
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        lastName: true,
+        username: true,
+        email: true,
+        userSports: {
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        },
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return errorResponse(res, "Usuario no encontrado", 404);
+    }
+
+    // Validar si tiene deportes seleccionados
+    const hasSports = user.userSports && user.userSports.length > 0;
+    
+    // Validar si tiene puntos configurados
+    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
+
+    // Determinar el estado y la próxima acción
+    let status = "complete";
+    let nextAction = null;
+    let message = "Usuario completamente configurado";
+
+    if (!hasSports) {
+      status = "missing_sports";
+      nextAction = "/selectSports";
+      message = "Usuario necesita seleccionar al menos un deporte";
+    } else if (!hasInitPoints) {
+      status = "missing_initpoints";
+      nextAction = "/initpoints";
+      message = "Usuario necesita configurar puntos iniciales";
+    }
+
+    const validationResponse = {
+      user: {
+        id: user.id,
+        name: user.name,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        points: user.userPoints
+      },
+      sports: user.userSports.map(us => ({
+        id: us.sport.id,
+        name: us.sport.name
+      })),
+      validation: {
+        status,
+        nextAction,
+        message,
+        hasSports,
+        hasInitPoints
+      }
+    };
+
+    return successResponse(res, validationResponse, message);
+  } catch (error) {
+    console.error("Error validando usuario:", error);
+    return errorResponse(res, "Error interno del servidor");
+  }
+});
+
 // GET /auth/internal/uuid/:uuid - Obtener usuario por UUID (uso interno)
 router.get("/internal/uuid/:uuid", authenticateToken, async (req, res) => {
   try {
     const { uuid } = req.params;
 
     const user = await prisma.user.findUnique({ 
-      where: { uuid: uuid },
+      where: { id: uuid },
       select: {
         id: true,
-        uuid: true,
         name: true,
         lastName: true,
-        cedula: true,
+        legalId: true,
         username: true,
         email: true,
         birthDate: true,
         age: true,
-        department: true,
-        createdAt: true
+        createdAt: true,
+        userPoints: {
+          select: {
+            initPoints: true,
+            actualPoints: true
+          }
+        }
       }
     });
 
