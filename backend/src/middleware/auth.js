@@ -13,6 +13,7 @@ const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error("Error en middleware auth:", error);
     return errorResponse(res, 'Token inválido o expirado', 403);
   }
 };

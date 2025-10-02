@@ -8,11 +8,45 @@ datasource db {
 }
 
 model User {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  name         String
+  lastName     String
+  cedula       String   @unique
+  username     String   @unique
+  email        String   @unique
+  birthDate    DateTime
+  age          Int
+  department   String
+  password     String
+  createdAt    DateTime @default(now())
+  
+  // Relaciones
+  userSports   UserSport[]
+}
+
+model Sport {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.Uuid
+  name         String   @unique
+  createdAt    DateTime @default(now())
+  
+  // Relaciones
+  userSports   UserSport[]
+}
+
+model UserSport {
   id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
+  userUuid  String   @db.Uuid
+  sportUuid String   @db.Uuid
   createdAt DateTime @default(now())
+  
+  // Relaciones
+  user      User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+  sport     Sport    @relation(fields: [sportUuid], references: [uuid], onDelete: Cascade)
+  
+  // Índice único para evitar duplicados
+  @@unique([userUuid, sportUuid])
 }
 
 
