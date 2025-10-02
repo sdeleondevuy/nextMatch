@@ -4,7 +4,16 @@ import { registerUser } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ 
+    name: "", 
+    lastName: "", 
+    cedula: "", 
+    username: "", 
+    email: "", 
+    birthDate: "", 
+    department: "", 
+    password: "" 
+  });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -31,7 +40,16 @@ function Register() {
       if (response.success) {
         setMessage("¡Registro exitoso! 🎉");
         // Limpiar formulario
-        setForm({ name: "", email: "", password: "" });
+        setForm({ 
+          name: "", 
+          lastName: "", 
+          cedula: "", 
+          username: "", 
+          email: "", 
+          birthDate: "", 
+          department: "", 
+          password: "" 
+        });
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
           navigate("/login");
@@ -70,27 +88,89 @@ function Register() {
         {/* Form */}
         <div className="card">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre completo
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Tu nombre completo"
-                value={form.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            {/* Nombre y Apellido en la misma fila */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre *
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Apellido *
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Tu apellido"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+              </div>
+            </div>
+
+            {/* Cédula y Username en la misma fila */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="cedula" className="block text-sm font-medium text-gray-700 mb-2">
+                  Cédula de Identidad *
+                </label>
+                <input
+                  id="cedula"
+                  name="cedula"
+                  type="text"
+                  placeholder="12345678"
+                  value={form.cedula}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  pattern="[0-9]+"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.cedula && <p className="mt-1 text-sm text-red-600">{errors.cedula}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                  Username *
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="mi_usuario"
+                  value={form.username}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  pattern="[a-zA-Z0-9_]+"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+              </div>
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
+                Email *
               </label>
               <input
                 id="email"
@@ -106,9 +186,47 @@ function Register() {
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
+            {/* Fecha de nacimiento y Departamento en la misma fila */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Fecha de Nacimiento *
+                </label>
+                <input
+                  id="birthDate"
+                  name="birthDate"
+                  type="date"
+                  value={form.birthDate}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.birthDate && <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                  Departamento *
+                </label>
+                <input
+                  id="department"
+                  name="department"
+                  type="text"
+                  placeholder="Montevideo"
+                  value={form.department}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                />
+                {errors.department && <p className="mt-1 text-sm text-red-600">{errors.department}</p>}
+              </div>
+            </div>
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
+                Contraseña *
               </label>
               <input
                 id="password"

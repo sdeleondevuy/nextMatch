@@ -17,7 +17,33 @@ export const registerSchema = z.object({
     .min(2, { message: "El nombre debe tener al menos 2 caracteres" })
     .max(50, { message: "El nombre no puede exceder 50 caracteres" })
     .trim(),
+  lastName: z.string()
+    .min(2, { message: "El apellido debe tener al menos 2 caracteres" })
+    .max(50, { message: "El apellido no puede exceder 50 caracteres" })
+    .trim(),
+  cedula: z.string()
+    .min(7, { message: "La cédula debe tener al menos 7 caracteres" })
+    .max(10, { message: "La cédula no puede exceder 10 caracteres" })
+    .regex(/^[0-9]+$/, { message: "La cédula debe contener solo números" })
+    .trim(),
+  username: z.string()
+    .min(3, { message: "El username debe tener al menos 3 caracteres" })
+    .max(20, { message: "El username no puede exceder 20 caracteres" })
+    .regex(/^[a-zA-Z0-9_]+$/, { message: "El username solo puede contener letras, números y guiones bajos" })
+    .trim(),
   email: emailSchema,
+  birthDate: z.string()
+    .min(1, { message: "La fecha de nacimiento es obligatoria" })
+    .refine((date) => {
+      const birthDate = new Date(date);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      return age >= 13 && age <= 120;
+    }, { message: "Debes tener entre 13 y 120 años" }),
+  department: z.string()
+    .min(2, { message: "El departamento debe tener al menos 2 caracteres" })
+    .max(50, { message: "El departamento no puede exceder 50 caracteres" })
+    .trim(),
   password: passwordSchema,
 });
 
@@ -35,6 +61,31 @@ export const updateProfileSchema = z.object({
     .max(50, { message: "El nombre no puede exceder 50 caracteres" })
     .trim()
     .optional(),
+  lastName: z.string()
+    .min(2, { message: "El apellido debe tener al menos 2 caracteres" })
+    .max(50, { message: "El apellido no puede exceder 50 caracteres" })
+    .trim()
+    .optional(),
+  username: z.string()
+    .min(3, { message: "El username debe tener al menos 3 caracteres" })
+    .max(20, { message: "El username no puede exceder 20 caracteres" })
+    .regex(/^[a-zA-Z0-9_]+$/, { message: "El username solo puede contener letras, números y guiones bajos" })
+    .trim()
+    .optional(),
   email: emailSchema.optional(),
+  birthDate: z.string()
+    .min(1, { message: "La fecha de nacimiento es obligatoria" })
+    .refine((date) => {
+      const birthDate = new Date(date);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      return age >= 13 && age <= 120;
+    }, { message: "Debes tener entre 13 y 120 años" })
+    .optional(),
+  department: z.string()
+    .min(2, { message: "El departamento debe tener al menos 2 caracteres" })
+    .max(50, { message: "El departamento no puede exceder 50 caracteres" })
+    .trim()
+    .optional(),
 });
 

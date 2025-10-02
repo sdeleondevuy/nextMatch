@@ -22,5 +22,11 @@ export const verifyToken = (token) => {
  */
 export const extractToken = (req) => {
   const authHeader = req.headers['authorization'];
-  return authHeader && authHeader.split(' ')[1]; // Bearer <token>
+
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.split(' ')[1];
+  return token;
 };

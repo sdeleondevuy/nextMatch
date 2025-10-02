@@ -11,9 +11,16 @@ async function apiRequest(endpoint, options = {}) {
     ...options,
   };
 
+  console.log('=== API Request ===');
+  console.log('URL:', url);
+  console.log('Config:', config);
+
   try {
     const response = await fetch(url, config);
     const data = await response.json();
+    
+    console.log('Response status:', response.status);
+    console.log('Response data:', data);
     
     if (!response.ok) {
       throw new Error(data.message || `Error ${response.status}`);
@@ -34,7 +41,13 @@ function getAuthToken() {
 // Función helper para headers con autenticación
 function getAuthHeaders() {
   const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  console.log('Token obtenido del localStorage:', token);
+  return token ? { 
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json"
+  } : {
+    "Content-Type": "application/json"
+  };
 }
 
 // ===== AUTH ENDPOINTS =====
@@ -92,4 +105,42 @@ export function getToken() {
 
 export function isAuthenticated() {
   return !!getAuthToken();
+}
+
+// ===== SPORTS ENDPOINTS =====
+
+export async function getSports() {
+  return apiRequest("/sports", {
+    method: "GET",
+  });
+}
+
+export async function getUserSports() {
+  return apiRequest("/sports/user", {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function addUserSport(sportUuid) {
+  return apiRequest("/sports/user", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ sportUuid }),
+  });
+}
+
+export async function removeUserSport(sportUuid) {
+  return apiRequest(`/sports/user/${sportUuid}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function updateUserSports(sportUuids) {
+  return apiRequest("/sports/user", {
+    method: "PUT",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ sportUuids }),
+  });
 }
