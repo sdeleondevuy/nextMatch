@@ -29,7 +29,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbar = location.pathname === '/';
+  const hideNavbar = location.pathname === '/' || location.pathname === '/register';
 
   return (
     <div className="App">

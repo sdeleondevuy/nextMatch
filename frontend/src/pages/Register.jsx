@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { registerUser } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
+import AuthNavbar from "../components/AuthNavbar";
 
 function Register() {
   const [form, setForm] = useState({ 
@@ -70,20 +71,20 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-100">
-            <span className="text-2xl">🎾</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Auth Navbar */}
+      <AuthNavbar />
+      
+      {/* Main Content */}
+      <div className="flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          {/* Title in body */}
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-black mb-2">Crea tu cuenta</h1>
+            <p className="text-sm text-gray-600">
+              Únete a la comunidad de JSM
+            </p>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 font-sans">
-            Crear Cuenta
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Únete a la comunidad de JSM
-          </p>
-        </div>
 
         {/* Form */}
         <div className="card">
@@ -295,6 +296,7 @@ function Register() {
               </Link>
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>

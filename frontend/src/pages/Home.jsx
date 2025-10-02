@@ -1,7 +1,19 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import LoginModal from "../components/LoginModal";
 import "./Home.css";
 
 function Home() {
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleLoginClick = (e) => {
+    e.preventDefault();
+    setShowLoginModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
+  };
   return (
     <div className="home-container home-fade-in">
       {/* Background Image */}
@@ -18,12 +30,12 @@ function Home() {
         <div className="home-content">
           {/* Action Buttons */}
           <div className="home-buttons">
-            <Link 
-              to="/login" 
+            <button 
+              onClick={handleLoginClick}
               className="home-btn home-btn-login"
             >
               Iniciar Sesión
-            </Link>
+            </button>
             
             <Link 
               to="/register" 
@@ -34,6 +46,12 @@ function Home() {
           </div>
         </div>
       </div>
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={handleCloseModal} 
+      />
     </div>
   );
 }
