@@ -1,4 +1,4 @@
-# 🎨 Setup de Tailwind CSS - NextMatch
+# 🎨 Setup de Tailwind CSS - JSM (JuegoSetMatch)
 
 ## ✅ Archivos Creados
 

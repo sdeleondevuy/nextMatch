@@ -81,7 +81,7 @@ function Register() {
             Crear Cuenta
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Únete a la comunidad de NextMatch
+            Únete a la comunidad de JSM
           </p>
         </div>
 

@@ -65,7 +65,7 @@ function Login() {
             Iniciar Sesión
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Accede a tu cuenta de NextMatch
+            Accede a tu cuenta de JSM
           </p>
         </div>
 

@@ -39,9 +39,9 @@ function Navbar() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link to="/" className="text-3xl font-bold text-white font-sans hover:text-blue-200 transition-colors">
-                NextMatch
+                JSM
               </Link>
-              <p className="text-blue-100 text-sm mt-1">Tu plataforma de tenis</p>
+              <p className="text-blue-100 text-sm mt-1">JuegoSetMatch</p>
             </div>
           </div>
           
