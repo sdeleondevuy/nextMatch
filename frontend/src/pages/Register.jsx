@@ -8,7 +8,7 @@ function Register() {
   const [form, setForm] = useState({ 
     name: "", 
     lastName: "", 
-    cedula: "", 
+    legalId: "", 
     username: "", 
     email: "", 
     birthDate: "", 
@@ -44,16 +44,16 @@ function Register() {
         setForm({ 
           name: "", 
           lastName: "", 
-          cedula: "", 
+          legalId: "", 
           username: "", 
           email: "", 
           birthDate: "", 
           department: "", 
           password: "" 
         });
-        // Redirigir al login después de 2 segundos
+        // Redirigir a la home después de 2 segundos
         setTimeout(() => {
-          navigate("/login");
+          navigate("/");
         }, 2000);
       }
     } catch (error) {
@@ -131,22 +131,22 @@ function Register() {
             {/* Cédula y Username en la misma fila */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="cedula" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="legalId" className="block text-sm font-medium text-gray-700 mb-2">
                   Cédula de Identidad *
                 </label>
                 <input
-                  id="cedula"
-                  name="cedula"
+                  id="legalId"
+                  name="legalId"
                   type="text"
                   placeholder="12345678"
-                  value={form.cedula}
+                  value={form.legalId}
                   onChange={handleChange}
                   required
                   disabled={loading}
                   pattern="[0-9]+"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                 />
-                {errors.cedula && <p className="mt-1 text-sm text-red-600">{errors.cedula}</p>}
+                {errors.legalId && <p className="mt-1 text-sm text-red-600">{errors.legalId}</p>}
               </div>
 
               <div>
@@ -289,7 +289,7 @@ function Register() {
             <p className="text-sm text-gray-600">
               ¿Ya tienes cuenta?{" "}
               <Link 
-                to="/login" 
+                to="/" 
                 className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
               >
                 Inicia sesión aquí

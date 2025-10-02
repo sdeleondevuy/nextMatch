@@ -5,7 +5,7 @@ export const validate = (schema) => {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-      return validationErrorResponse(res, result.error.errors);
+      return validationErrorResponse(res, result.error.issues);
     }
 
     // Sobrescribimos req.body con los datos ya parseados/validados

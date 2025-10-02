@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { loginUser } from '../services/api';
+import { loginUser, saveToken } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import './LoginModal.css';
 
@@ -51,9 +51,22 @@ function LoginModal({ isOpen, onClose }) {
     try {
       const response = await loginUser(formData);
       if (response.success) {
+        // Guardar token en localStorage para mantener la sesión
+        saveToken(response.data.token);
+        
+        // Verificar el estado de validación del usuario
+        const validation = response.data.validation;
+        
         onClose();
-        navigate('/profile');
-        // Opcional: mostrar mensaje de éxito
+        
+        // Navegar según el estado de validación
+        if (validation.status === 'missing_sports') {
+          navigate('/selectSports');
+        } else if (validation.status === 'missing_initpoints') {
+          navigate('/initpoints');
+        } else {
+          navigate('/profile');
+        }
       }
     } catch (error) {
       setError(error.message || 'Error al iniciar sesión');

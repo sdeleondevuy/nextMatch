@@ -5,7 +5,6 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
   const [availableSports, setAvailableSports] = useState([]);
   const [userSports, setUserSports] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -41,62 +40,59 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
 
   const handleSportToggle = (sport) => {
     const currentUserSports = Array.isArray(userSports) ? userSports : [];
-    const isSelected = currentUserSports.some(userSport => userSport.uuid === sport.uuid);
+    const isSelected = currentUserSports.some(userSport => userSport.id === sport.id);
     
     if (isSelected) {
-      setUserSports(prev => (Array.isArray(prev) ? prev : []).filter(userSport => userSport.uuid !== sport.uuid));
+      setUserSports(currentUserSports.filter(userSport => userSport.id !== sport.id));
     } else {
-      setUserSports(prev => [...(Array.isArray(prev) ? prev : []), sport]);
+      setUserSports([...currentUserSports, sport]);
     }
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    setMessage('');
-
-    try {
-      const currentUserSports = Array.isArray(userSports) ? userSports : [];
-      const sportUuids = currentUserSports.map(sport => sport.uuid);
-      console.log('=== Frontend - Enviando deportes ===');
-      console.log('userSports:', currentUserSports);
-      console.log('sportUuids:', sportUuids);
-      
-      const response = await updateUserSports(sportUuids);
-
-      if (response.success) {
-        setMessage('Deportes actualizados exitosamente ✅');
-        onUpdate(response.data);
-        
-        // Cerrar modal después de 1.5 segundos
-        setTimeout(() => {
-          onClose();
-        }, 1500);
-      }
-    } catch (error) {
-      console.error('Error guardando deportes:', error);
-      setMessage('Error guardando los deportes');
-    } finally {
-      setSaving(false);
-    }
+  const handleSave = () => {
+    const currentUserSports = Array.isArray(userSports) ? userSports : [];
+    const sportIds = currentUserSports.map(sport => sport.id);
+    
+    // Pasar los deportes seleccionados al componente padre
+    onUpdate(sportIds);
+    onClose();
   };
 
   const isSelected = (sport) => {
     const currentUserSports = Array.isArray(userSports) ? userSports : [];
-    return currentUserSports.some(userSport => userSport.uuid === sport.uuid);
+    return currentUserSports.some(userSport => userSport.id === sport.id);
   };
 
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleModalClick = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col sm:max-h-[90vh] max-h-[95vh]"
+        onClick={handleModalClick}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Seleccionar Deportes</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Seleccionar Deportes</h2>
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-600 transition-colors"
-            disabled={saving}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -104,8 +100,8 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
+        {/* Content - Scrollable */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
@@ -121,13 +117,16 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {Array.isArray(availableSports) && availableSports.map((sport) => (
                   <div
-                    key={sport.uuid}
+                    key={sport.id}
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                       isSelected(sport)
                         ? 'border-green-500 bg-green-50 text-green-800'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
-                    onClick={() => handleSportToggle(sport)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSportToggle(sport);
+                    }}
                   >
                     <div className="flex items-center">
                       <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
@@ -162,33 +161,32 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
                   {message}
                 </div>
               )}
-
-              {/* Actions */}
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                  disabled={saving}
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="btn-primary px-6 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {saving ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Guardando...
-                    </div>
-                  ) : (
-                    'Guardar Deportes'
-                  )}
-                </button>
-              </div>
             </>
           )}
+        </div>
+
+        {/* Actions - Fixed at bottom */}
+        <div className="p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+              className="btn-primary px-6 py-2 rounded-lg font-medium transition-all duration-300"
+            >
+              Guardar Deportes
+            </button>
+          </div>
         </div>
       </div>
     </div>

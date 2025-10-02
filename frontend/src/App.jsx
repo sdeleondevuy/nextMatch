@@ -2,8 +2,9 @@ import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
-import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import SelectSports from "./pages/SelectSports";
+import InitPoints from "./pages/InitPoints";
 import Navbar from "./components/Navbar";
 import SplashScreen from "./components/SplashScreen";
 import "./App.css";
@@ -29,7 +30,11 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbar = location.pathname === '/' || location.pathname === '/register';
+  const hideNavbar = location.pathname === '/' || 
+                     location.pathname === '/register' || 
+                     location.pathname === '/profile' ||
+                     location.pathname === '/selectSports' ||
+                     location.pathname === '/initpoints';
 
   return (
     <div className="App">
@@ -37,8 +42,9 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/selectSports" element={<SelectSports />} />
+        <Route path="/initpoints" element={<InitPoints />} />
       </Routes>
     </div>
   );

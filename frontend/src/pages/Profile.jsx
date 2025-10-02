@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { getCurrentUser, updateProfile, removeToken, getUserSports } from "../services/api";
+import { getCurrentUser, updateProfile, removeToken, getUserSports, handleAuthError } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import SportSelector from "../components/SportSelector";
+import AuthNavbar from "../components/AuthNavbar";
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -49,10 +50,8 @@ function Profile() {
       }
     } catch (error) {
       console.error("Error cargando perfil:", error);
-      if (error.message.includes("Token") || error.message.includes("401")) {
-        // Token inválido, redirigir al login
-        removeToken();
-        navigate("/login");
+      if (handleAuthError(error, navigate)) {
+        return; // Error de autenticación manejado
       }
     } finally {
       setLoading(false);
@@ -119,7 +118,7 @@ function Profile() {
 
   const handleLogout = () => {
     removeToken();
-    navigate("/login");
+    navigate("/");
   };
 
   const handleSportUpdate = async (updatedData) => {
@@ -160,8 +159,13 @@ function Profile() {
   }
 
   return (
-    <div className="form-container">
-      <h2>Mi Perfil</h2>
+    <div className="min-h-screen bg-gray-50">
+      {/* Auth Navbar */}
+      <AuthNavbar />
+
+      {/* Main Content */}
+      <div className="form-container">
+        <h2>Mi Perfil</h2>
       
       {editing ? (
         <form onSubmit={handleSave} className="space-y-6">
@@ -387,6 +391,7 @@ function Profile() {
         onClose={handleCloseSportSelector}
         onUpdate={handleSportUpdate}
       />
+      </div>
     </div>
   );
 }
