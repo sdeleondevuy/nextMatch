@@ -160,230 +160,285 @@ function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Auth Navbar */}
       <AuthNavbar />
-
-      {/* Main Content */}
-      <div className="form-container">
-        <h2>Mi Perfil</h2>
       
-      {editing ? (
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Nombre y Apellido en la misma fila */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-group">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={form.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.name && <span className="text-sm text-red-600">{errors.name}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">Apellido</label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                value={form.lastName}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.lastName && <span className="text-sm text-red-600">{errors.lastName}</span>}
-            </div>
+      <div className="flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          {/* Title in body */}
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-black mb-2">Mi Perfil</h1>
+            <p className="text-sm text-gray-600">
+              Gestiona tu información personal y deportes
+            </p>
           </div>
+      
+          {/* Form */}
+          <div className="card">
+            {editing ? (
+              <form onSubmit={handleSave} className="space-y-6">
+                {/* Nombre y Apellido en la misma fila */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="Tu nombre"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                  </div>
 
-          {/* Username y Email en la misma fila */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-group">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                value={form.username}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                pattern="[a-zA-Z0-9_]+"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.username && <span className="text-sm text-red-600">{errors.username}</span>}
-            </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">Apellido *</label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      placeholder="Tu apellido"
+                      value={form.lastName}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+                  </div>
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.email && <span className="text-sm text-red-600">{errors.email}</span>}
-            </div>
-          </div>
+                {/* Username y Email en la misma fila */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">Username *</label>
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      placeholder="mi_usuario"
+                      value={form.username}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      pattern="[a-zA-Z0-9_]+"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                  </div>
 
-          {/* Fecha de nacimiento y Departamento en la misma fila */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-group">
-              <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento</label>
-              <input
-                id="birthDate"
-                name="birthDate"
-                type="date"
-                value={form.birthDate}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.birthDate && <span className="text-sm text-red-600">{errors.birthDate}</span>}
-            </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                  </div>
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">Departamento</label>
-              <input
-                id="department"
-                name="department"
-                type="text"
-                value={form.department}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-              />
-              {errors.department && <span className="text-sm text-red-600">{errors.department}</span>}
-            </div>
-          </div>
+                {/* Fecha de nacimiento y Departamento en la misma fila */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">Fecha de Nacimiento *</label>
+                    <input
+                      id="birthDate"
+                      name="birthDate"
+                      type="date"
+                      value={form.birthDate}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.birthDate && <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>}
+                  </div>
 
-          <div className="form-actions flex space-x-4">
-            <button type="submit" className="btn-primary px-6 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar"}
-            </button>
-            <button type="button" className="btn-secondary px-6 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleCancel} disabled={loading}>
-              Cancelar
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div className="profile-info space-y-6">
-          {/* Información personal */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Personal</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Nombre:</label>
-                <span className="text-gray-900">{user.name}</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Apellido:</label>
-                <span className="text-gray-900">{user.lastName}</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Cédula:</label>
-                <span className="text-gray-900">{user.cedula}</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Username:</label>
-                <span className="text-gray-900">@{user.username}</span>
-              </div>
-            </div>
-          </div>
+                  <div>
+                    <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">Departamento *</label>
+                    <input
+                      id="department"
+                      name="department"
+                      type="text"
+                      placeholder="Tu departamento"
+                      value={form.department}
+                      onChange={handleChange}
+                      required
+                      disabled={loading}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                    />
+                    {errors.department && <p className="mt-1 text-sm text-red-600">{errors.department}</p>}
+                  </div>
+                </div>
 
-          {/* Información de contacto */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de Contacto</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Email:</label>
-                <span className="text-gray-900">{user.email}</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Departamento:</label>
-                <span className="text-gray-900">{user.department}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Deportes */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Deportes de Interés</h3>
-              <button
-                onClick={handleOpenSportSelector}
-                className="btn-primary px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-              >
-                {userSports.length > 0 ? 'Editar Deportes' : 'Seleccionar Deportes'}
-              </button>
-            </div>
-            
-            {userSports.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {userSports.map((sport) => (
-                  <span
-                    key={sport.uuid}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+                {/* Action Button */}
+                <div>
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="btn-primary w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    🎾 {sport.name}
-                  </span>
-                ))}
-              </div>
+                    {loading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Guardando...
+                      </div>
+                    ) : (
+                      "Guardar Cambios"
+                    )}
+                  </button>
+                </div>
+              </form>
             ) : (
-              <div className="text-gray-500 text-center py-4">
-                <p>No has seleccionado ningún deporte aún.</p>
-                <p className="text-sm">Haz clic en "Seleccionar Deportes" para comenzar.</p>
+              <div className="space-y-6">
+                {/* Información Personal */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Personal</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
+                        <span className="text-gray-900 font-medium">{user.name}</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Apellido:</label>
+                        <span className="text-gray-900 font-medium">{user.lastName}</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Username:</label>
+                        <span className="text-gray-900 font-medium">@{user.username}</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Cédula:</label>
+                        <span className="text-gray-900 font-medium">{user.legalId}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Información de Contacto */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de Contacto</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                        <span className="text-gray-900 font-medium">{user.email}</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Departamento:</label>
+                        <span className="text-gray-900 font-medium">{user.department}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Deportes */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Deportes de Interés</h3>
+                    <button
+                      onClick={handleOpenSportSelector}
+                      className="btn-primary px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                    >
+                      {userSports.length > 0 ? 'Editar Deportes' : 'Seleccionar Deportes'}
+                    </button>
+                  </div>
+                  
+                  {userSports.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {userSports.map((sport) => (
+                        <span
+                          key={sport.id}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+                        >
+                          🎾 {sport.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 text-center py-4">
+                      <p>No has seleccionado ningún deporte aún.</p>
+                      <p className="text-sm">Haz clic en "Seleccionar Deportes" para comenzar.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Información Adicional */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Adicional</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento:</label>
+                        <span className="text-gray-900 font-medium">{new Date(user.birthDate).toLocaleDateString()}</span>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Edad:</label>
+                        <span className="text-gray-900 font-medium">{user.age} años</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Miembro desde:</label>
+                      <span className="text-gray-900 font-medium">{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <button 
+                    onClick={handleEdit}
+                    className="btn-primary w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300"
+                  >
+                    Editar Perfil
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                  >
+                    Cerrar Sesión
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Messages */}
+            {message && (
+              <div className={`mt-4 p-4 rounded-lg ${
+                message.includes("✅") || message.includes("🎉") 
+                  ? "bg-green-50 text-green-800 border border-green-200" 
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}>
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    {message.includes("✅") || message.includes("🎉") ? (
+                      <span className="text-green-400">✓</span>
+                    ) : (
+                      <span className="text-red-400">✕</span>
+                    )}
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium">{message}</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-
-          {/* Información adicional */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Adicional</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Fecha de Nacimiento:</label>
-                <span className="text-gray-900">{new Date(user.birthDate).toLocaleDateString()}</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Edad:</label>
-                <span className="text-gray-900">{user.age} años</span>
-              </div>
-              <div className="profile-field">
-                <label className="block text-sm font-medium text-gray-700">Miembro desde:</label>
-                <span className="text-gray-900">{new Date(user.createdAt).toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="profile-actions flex space-x-4">
-            <button className="btn-primary px-6 py-2 rounded-lg font-medium transition-all duration-300" onClick={handleEdit}>
-              Editar Perfil
-            </button>
-            <button className="btn-danger px-6 py-2 rounded-lg font-medium transition-all duration-300" onClick={handleLogout}>
-              Cerrar Sesión
-            </button>
-          </div>
         </div>
-      )}
-
-      {message && (
-        <div className={`message ${message.includes("✅") ? "success" : "error"}`}>
-          {message}
-        </div>
-      )}
+      </div>
 
       {/* Sport Selector Modal */}
       <SportSelector
@@ -391,7 +446,6 @@ function Profile() {
         onClose={handleCloseSportSelector}
         onUpdate={handleSportUpdate}
       />
-      </div>
     </div>
   );
 }
