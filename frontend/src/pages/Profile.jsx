@@ -46,7 +46,7 @@ function Profile() {
       }
 
       if (sportsResponse.success) {
-        setUserSports(sportsResponse.data.sports || []);
+        setUserSports(sportsResponse.data.userSports || []);
       }
     } catch (error) {
       console.error("Error cargando perfil:", error);
@@ -126,7 +126,7 @@ function Profile() {
     try {
       const sportsResponse = await getUserSports();
       if (sportsResponse.success) {
-        const sports = sportsResponse.data.sports || [];
+        const sports = sportsResponse.data.userSports || [];
         setUserSports(sports);
       }
     } catch (error) {
@@ -399,6 +399,12 @@ function Profile() {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
+                  <button 
+                    onClick={() => navigate('/selectSport')}
+                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    🎾 Seleccionar Deporte para Jugar
+                  </button>
                   <button 
                     onClick={handleEdit}
                     className="btn-primary w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300"

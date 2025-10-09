@@ -17,16 +17,17 @@ model User {
   birthDate    DateTime
   age          Int
   password     String
+  enabled      Boolean  @default(true)
   createdAt    DateTime @default(now())
   
   // Relaciones
   userSports   UserSport[]
-  userPoints   UserPoints?
 }
 
 model Sport {
   id           String   @id @default(uuid()) @db.Uuid
   name         String   @unique
+  enabled      Boolean  @default(true)
   createdAt    DateTime @default(now())
   
   // Relaciones
@@ -37,11 +38,13 @@ model UserSport {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @db.Uuid
   sportId   String   @db.Uuid
+  enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
   
   // Relaciones
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   sport     Sport    @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  userPoints UserPoints?
   
   // Índice único para evitar duplicados
   @@unique([userId, sportId])
@@ -49,14 +52,15 @@ model UserSport {
 
 model UserPoints {
   id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @unique @db.Uuid
+  userSportId  String   @unique @db.Uuid
   initPoints   Int      // Puntos iniciales configurados por el usuario
   actualPoints Int      // Puntos actuales (inicialmente igual a initPoints)
+  enabled      Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   
   // Relaciones
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userSport    UserSport @relation(fields: [userSportId], references: [id], onDelete: Cascade)
 }
 
 

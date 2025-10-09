@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const sports = [
   'Tenis Singles',
   'Tenis Dobles', 
-  'Paddle',
+  'Pádel',
   'Pickleball'
 ];
 
