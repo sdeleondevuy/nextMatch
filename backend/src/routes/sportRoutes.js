@@ -164,7 +164,7 @@ router.delete("/user/:sportId", authenticateToken, async (req, res) => {
   }
 });
 
-// PUT /sports/user - Actualizar deportes del usuario (reemplazar todos)
+// PUT /sports/user - Actualizar deportes del usuario (borrado lógico)
 router.put("/user", authenticateToken, async (req, res) => {
   try {
     const { sportIds } = req.body;
@@ -188,26 +188,12 @@ router.put("/user", authenticateToken, async (req, res) => {
       return errorResponse(res, "Uno o más deportes no existen o no están disponibles", 400);
     }
 
-    // Eliminar todos los deportes actuales del usuario
-    await prisma.userSport.deleteMany({
-      where: {
-        userId: userId
-      }
-    });
-
-    // Agregar los nuevos deportes
-    if (sportIds.length > 0) {
-      await prisma.userSport.createMany({
-        data: sportIds.map(sportId => ({
-          userId: userId,
-          sportId: sportId
-        }))
-      });
-    }
-
-    // Obtener los deportes actualizados del usuario
-    const updatedUserSports = await prisma.userSport.findMany({
-      where: { userId },
+    // Obtener deportes actuales del usuario (solo los habilitados)
+    const currentUserSports = await prisma.userSport.findMany({
+      where: { 
+        userId,
+        enabled: true  // Solo deportes habilitados
+      },
       include: {
         sport: {
           select: {
@@ -218,9 +204,145 @@ router.put("/user", authenticateToken, async (req, res) => {
       }
     });
 
-    const userSports = updatedUserSports.map(us => us.sport);
+    const currentSportIds = currentUserSports.map(us => us.sport.id);
+    
+    // Identificar deportes a agregar y eliminar
+    const sportsToAdd = sportIds.filter(sportId => !currentSportIds.includes(sportId));
+    const sportsToRemove = currentSportIds.filter(sportId => !sportIds.includes(sportId));
 
-    return successResponse(res, { sports: userSports }, "Deportes actualizados exitosamente");
+    // Eliminar deportes (borrado lógico)
+    if (sportsToRemove.length > 0) {
+      // Deshabilitar UserSport
+      await prisma.userSport.updateMany({
+        where: {
+          userId: userId,
+          sportId: {
+            in: sportsToRemove
+          }
+        },
+        data: {
+          enabled: false
+        }
+      });
+      
+      // También deshabilitar UserPoints asociados
+      const userSportsToDisable = await prisma.userSport.findMany({
+        where: {
+          userId: userId,
+          sportId: {
+            in: sportsToRemove
+          }
+        },
+        select: { id: true }
+      });
+      
+      if (userSportsToDisable.length > 0) {
+        await prisma.userPoints.updateMany({
+          where: {
+            userSportId: {
+              in: userSportsToDisable.map(us => us.id)
+            }
+          },
+          data: {
+            enabled: false
+          }
+        });
+      }
+    }
+
+    // Agregar nuevos deportes
+    if (sportsToAdd.length > 0) {
+      // Verificar si ya existen registros para reactivarlos o crear nuevos
+      for (const sportId of sportsToAdd) {
+        // Buscar cualquier registro existente (habilitado o deshabilitado)
+        const existingUserSport = await prisma.userSport.findFirst({
+          where: {
+            userId: userId,
+            sportId: sportId
+          }
+        });
+
+        if (existingUserSport) {
+          if (!existingUserSport.enabled) {
+            // Reactivar el registro existente
+            await prisma.userSport.update({
+              where: { id: existingUserSport.id },
+              data: { enabled: true }
+            });
+
+            // Verificar si existe UserPoints para este UserSport y reactivarlo
+            const existingUserPoints = await prisma.userPoints.findFirst({
+              where: {
+                userSportId: existingUserSport.id
+              }
+            });
+
+            if (existingUserPoints) {
+              if (!existingUserPoints.enabled) {
+                // Reactivar UserPoints existente
+                await prisma.userPoints.update({
+                  where: { id: existingUserPoints.id },
+                  data: { enabled: true }
+                });
+              }
+            } else {
+              // Si no existe UserPoints, crear uno nuevo
+              await prisma.userPoints.create({
+                data: {
+                  userSportId: existingUserSport.id,
+                  initPoints: 0, // Valor inicial vacío
+                  actualPoints: 0 // Valor inicial vacío
+                }
+              });
+            }
+          }
+        } else {
+          // Crear nuevo registro
+          const newUserSport = await prisma.userSport.create({
+            data: {
+              userId: userId,
+              sportId: sportId
+            }
+          });
+
+          // Crear registro vacío en UserPoints para que el usuario pueda configurar puntos iniciales
+          await prisma.userPoints.create({
+            data: {
+              userSportId: newUserSport.id,
+              initPoints: 0, // Valor inicial vacío
+              actualPoints: 0 // Valor inicial vacío
+            }
+          });
+        }
+      }
+    }
+
+    // Obtener los deportes actualizados del usuario
+    const updatedUserSports = await prisma.userSport.findMany({
+      where: { 
+        userId,
+        enabled: true
+      },
+      include: {
+        sport: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+
+    const userSports = updatedUserSports.map(us => ({
+      id: us.id, // UserSport ID
+      sport: {
+        id: us.sport.id,
+        name: us.sport.name
+      }
+    }));
+
+    return successResponse(res, { userSports }, "Deportes actualizados exitosamente");
   } catch (error) {
     console.error("Error actualizando deportes del usuario:", error);
     return errorResponse(res, "Error interno del servidor");

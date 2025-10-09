@@ -40,18 +40,26 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
 
   const handleSportToggle = (sport) => {
     const currentUserSports = Array.isArray(userSports) ? userSports : [];
-    const isSelected = currentUserSports.some(userSport => userSport.id === sport.id);
+    const isSelected = currentUserSports.some(userSport => userSport.sport.id === sport.id);
     
     if (isSelected) {
-      setUserSports(currentUserSports.filter(userSport => userSport.id !== sport.id));
+      setUserSports(currentUserSports.filter(userSport => userSport.sport.id !== sport.id));
     } else {
-      setUserSports([...currentUserSports, sport]);
+      // Crear un objeto userSport con la estructura esperada
+      const newUserSport = {
+        id: `temp-${sport.id}`, // ID temporal para el frontend
+        sport: {
+          id: sport.id,
+          name: sport.name
+        }
+      };
+      setUserSports([...currentUserSports, newUserSport]);
     }
   };
 
   const handleSave = () => {
     const currentUserSports = Array.isArray(userSports) ? userSports : [];
-    const sportIds = currentUserSports.map(sport => sport.id);
+    const sportIds = currentUserSports.map(userSport => userSport.sport.id);
     
     // Pasar los deportes seleccionados al componente padre
     onUpdate(sportIds);
@@ -60,7 +68,7 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
 
   const isSelected = (sport) => {
     const currentUserSports = Array.isArray(userSports) ? userSports : [];
-    return currentUserSports.some(userSport => userSport.id === sport.id);
+    return currentUserSports.some(userSport => userSport.sport.id === sport.id);
   };
 
   if (!isOpen) return null;

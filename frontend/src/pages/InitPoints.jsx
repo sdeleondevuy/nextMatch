@@ -24,20 +24,28 @@ function InitPoints() {
       if (response.success) {
         setUser(response.data);
         
-        // Obtener deportes del usuario
-        const sports = response.data.userSports || [];
-        setUserSports(sports);
+        // Filtrar solo deportes que NO tienen puntos configurados (initPoints = 0 o sin configurar)
+        const sportsWithoutPoints = response.data.userSports.filter(userSport => {
+          const hasPoints = userSport.userPoints && (
+            (Array.isArray(userSport.userPoints) && userSport.userPoints.length > 0 && userSport.userPoints[0].initPoints > 0) ||
+            (typeof userSport.userPoints === 'object' && userSport.userPoints.initPoints !== undefined && userSport.userPoints.initPoints > 0)
+          );
+          return !hasPoints;
+        });
         
-        // Inicializar puntos para cada deporte
+        setUserSports(sportsWithoutPoints);
+        
+        // Si no hay deportes sin configurar, redirigir
+        if (sportsWithoutPoints.length === 0) {
+          navigate('/selectSport');
+          return;
+        }
+        
+        // Inicializar puntos para cada deporte sin configurar
         const initialPoints = {};
-        sports.forEach(sport => {
-          // Si ya tiene puntos configurados, usar esos valores
-          if (sport.userPoints && sport.userPoints.length > 0) {
-            initialPoints[sport.id] = sport.userPoints[0].initPoints.toString();
-          } else {
-            // Valor por defecto
-            initialPoints[sport.id] = '1000';
-          }
+        sportsWithoutPoints.forEach(sport => {
+          // Valor por defecto para deportes sin configurar
+          initialPoints[sport.sport.id] = '1000';
         });
         setSportPoints(initialPoints);
       }
@@ -61,15 +69,15 @@ function InitPoints() {
 
   const validateSportPoints = () => {
     for (const sport of userSports) {
-      const points = sportPoints[sport.id];
+      const points = sportPoints[sport.sport.id];
       if (!points || points.trim() === '') {
-        setError(`Debes ingresar puntos para ${sport.name}`);
+        setError(`Debes ingresar puntos para ${sport.sport.name}`);
         return false;
       }
       
       const pointsNum = parseInt(points);
       if (isNaN(pointsNum) || pointsNum <= 0 || pointsNum > 10000) {
-        setError(`Los puntos para ${sport.name} deben ser un número entre 1 y 10,000`);
+        setError(`Los puntos para ${sport.sport.name} deben ser un número entre 1 y 10,000`);
         return false;
       }
     }
@@ -91,7 +99,7 @@ function InitPoints() {
       // Preparar datos para enviar
       const sportPointsData = userSports.map(sport => ({
         sportId: sport.sport.id,
-        initPoints: parseInt(sportPoints[sport.id])
+        initPoints: parseInt(sportPoints[sport.sport.id])
       }));
       
       const response = await setInitPoints(sportPointsData);
@@ -175,7 +183,7 @@ function InitPoints() {
               {/* Sports Points Configuration */}
               <div className="space-y-4">
                 {userSports.map((userSport, index) => (
-                  <div key={userSport.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                  <div key={userSport.sport.id} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
                     {/* Sport Header */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -209,8 +217,8 @@ function InitPoints() {
                         <input
                           type="number"
                           id={`points-${userSport.id}`}
-                          value={sportPoints[userSport.id] || ''}
-                          onChange={(e) => handleSportPointsChange(userSport.id, e.target.value)}
+                          value={sportPoints[userSport.sport.id] || ''}
+                          onChange={(e) => handleSportPointsChange(userSport.sport.id, e.target.value)}
                           min="1"
                           max="10000"
                           placeholder="Ej: 1000"
@@ -227,7 +235,7 @@ function InitPoints() {
                           Ingresa un número entre 1 y 10,000 puntos
                         </p>
                         <div className="text-xs text-gray-400">
-                          {sportPoints[userSport.id] ? `${sportPoints[userSport.id]} puntos` : ''}
+                          {sportPoints[userSport.sport.id] ? `${sportPoints[userSport.sport.id]} puntos` : ''}
                         </div>
                       </div>
                     </div>
