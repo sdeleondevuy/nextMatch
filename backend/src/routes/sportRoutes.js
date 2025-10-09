@@ -10,6 +10,7 @@ const prisma = new PrismaClient();
 router.get("/", async (req, res) => {
   try {
     const sports = await prisma.sport.findMany({
+      where: { enabled: true },
       orderBy: { name: 'asc' }
     });
 
@@ -26,20 +27,33 @@ router.get("/user", authenticateToken, async (req, res) => {
     const userId = req.user.userId;
 
     const userSports = await prisma.userSport.findMany({
-      where: { userId },
+      where: { 
+        userId,
+        enabled: true
+      },
       include: {
         sport: {
           select: {
             id: true,
             name: true
           }
+        },
+        userPoints: {
+          where: { enabled: true }
         }
       }
     });
 
-    const sports = userSports.map(us => us.sport);
+    const userSportsFormatted = userSports.map(us => ({
+      id: us.id, // UserSport ID
+      sport: {
+        id: us.sport.id,
+        name: us.sport.name
+      },
+      userPoints: us.userPoints ? [us.userPoints] : []
+    }));
 
-    return successResponse(res, { sports }, "Deportes del usuario obtenidos exitosamente");
+    return successResponse(res, { userSports: userSportsFormatted }, "Deportes del usuario obtenidos exitosamente");
   } catch (error) {
     console.error("Error obteniendo deportes del usuario:", error);
     return errorResponse(res, "Error interno del servidor");
@@ -57,13 +71,16 @@ router.post("/user", authenticateToken, async (req, res) => {
 
     const userId = req.user.userId;
 
-    // Verificar que el deporte existe
+    // Verificar que el deporte existe y está habilitado
     const sport = await prisma.sport.findUnique({
-      where: { id: sportId }
+      where: { 
+        id: sportId,
+        enabled: true
+      }
     });
 
     if (!sport) {
-      return errorResponse(res, "Deporte no encontrado", 404);
+      return errorResponse(res, "Deporte no encontrado o no disponible", 404);
     }
 
     // Verificar que el usuario no tenga ya este deporte
@@ -157,17 +174,18 @@ router.put("/user", authenticateToken, async (req, res) => {
       return errorResponse(res, "sportIds debe ser un array", 400);
     }
 
-    // Verificar que todos los deportes existen
+    // Verificar que todos los deportes existen y están habilitados
     const sports = await prisma.sport.findMany({
       where: {
         id: {
           in: sportIds
-        }
+        },
+        enabled: true
       }
     });
 
     if (sports.length !== sportIds.length) {
-      return errorResponse(res, "Uno o más deportes no existen", 400);
+      return errorResponse(res, "Uno o más deportes no existen o no están disponibles", 400);
     }
 
     // Eliminar todos los deportes actuales del usuario

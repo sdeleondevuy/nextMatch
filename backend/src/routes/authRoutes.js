@@ -87,51 +87,110 @@ router.post("/register", validate(registerSchema), async (req, res) => {
 router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("🟢 [BACKEND] Iniciando proceso de login para:", email);
 
     // Buscar usuario con sus deportes y puntos
+    console.log("🟢 [BACKEND] Buscando usuario en la base de datos...");
     const user = await prisma.user.findUnique({ 
-      where: { email: email.toLowerCase() },
+      where: { 
+        email: email.toLowerCase(),
+        enabled: true
+      },
       include: {
         userSports: {
+          where: { enabled: true },
           include: {
             sport: {
               select: {
                 id: true,
                 name: true
               }
+            },
+            userPoints: {
+              where: { enabled: true },
+              select: {
+                initPoints: true,
+                actualPoints: true
+              }
             }
-          }
-        },
-        userPoints: {
-          select: {
-            initPoints: true,
-            actualPoints: true
           }
         }
       }
     });
     
+    console.log("🟢 [BACKEND] Usuario encontrado:", user ? "SÍ" : "NO");
     if (!user) {
+      console.log("🟢 [BACKEND] Usuario no encontrado, devolviendo error 401");
       return errorResponse(res, "Credenciales inválidas", 401);
     }
 
     // Verificar contraseña
+    console.log("🟢 [BACKEND] Verificando contraseña...");
     const validPassword = await bcrypt.compare(password, user.password);
+    console.log("🟢 [BACKEND] Contraseña válida:", validPassword ? "SÍ" : "NO");
     if (!validPassword) {
+      console.log("🟢 [BACKEND] Contraseña inválida, devolviendo error 401");
       return errorResponse(res, "Credenciales inválidas", 401);
     }
 
     // Generar token JWT
+    console.log("🟢 [BACKEND] Generando token JWT...");
     const token = generateToken({ 
       userId: user.id,
       email: user.email 
     });
+    console.log("🟢 [BACKEND] Token generado:", token.substring(0, 20) + "...");
 
     // Validar estado del usuario
+    console.log("🟢 [BACKEND] Validando estado del usuario...");
+    console.log("🟢 [BACKEND] UserSports encontrados:", user.userSports?.length || 0);
     const hasSports = user.userSports && user.userSports.length > 0;
-    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
+    console.log("🟢 [BACKEND] Usuario tiene deportes:", hasSports);
+    
+    // La validación debe verificar que cada userSport tenga userPoints
+    // userPoints viene como un array de objetos desde Prisma
+    console.log("🟢 [BACKEND] Verificando puntos iniciales...");
+    const hasAllInitPoints = hasSports && user.userSports.every(us => {
+      const hasPoints = us.userPoints && (
+        (Array.isArray(us.userPoints) && us.userPoints.length > 0) ||
+        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined)
+      );
+      return hasPoints;
+    });
+    console.log("🟢 [BACKEND] Todos los deportes tienen puntos:", hasAllInitPoints);
+    
+    // Contar deportes con puntos configurados
+    console.log("🟢 [BACKEND] === DEBUGGING SPORTS WITH POINTS ===");
+    console.log("🟢 [BACKEND] Total userSports:", user.userSports.length);
+    
+    user.userSports.forEach((us, index) => {
+      console.log(`🟢 [BACKEND] Deporte ${index + 1}:`, {
+        sportName: us.sport.name,
+        userPoints: us.userPoints,
+        userPointsType: typeof us.userPoints,
+        userPointsIsArray: Array.isArray(us.userPoints),
+        userPointsLength: us.userPoints ? us.userPoints.length : 'N/A'
+      });
+    });
+    
+    const sportsWithPoints = hasSports ? user.userSports.filter(us => {
+      // Verificar si userPoints existe y tiene datos
+      const hasPoints = us.userPoints && (
+        (Array.isArray(us.userPoints) && us.userPoints.length > 0) ||
+        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined)
+      );
+      console.log(`🟢 [BACKEND] ${us.sport.name} tiene puntos:`, hasPoints);
+      console.log(`🟢 [BACKEND] ${us.sport.name} userPoints detalle:`, us.userPoints);
+      return hasPoints;
+    }) : [];
+    
+    const hasSomeSportsWithPoints = sportsWithPoints.length > 0;
+    console.log("🟢 [BACKEND] Algunos deportes tienen puntos:", hasSomeSportsWithPoints);
+    console.log("🟢 [BACKEND] Deportes con puntos:", sportsWithPoints.length);
+    console.log("🟢 [BACKEND] === FIN DEBUGGING ===");
 
     // Determinar el estado y la próxima acción
+    console.log("🟢 [BACKEND] Determinando estado del usuario...");
     let status = "complete";
     let nextAction = "/profile";
     let message = "Login exitoso";
@@ -140,11 +199,26 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       status = "missing_sports";
       nextAction = "/selectSports";
       message = "Usuario necesita seleccionar al menos un deporte";
-    } else if (!hasInitPoints) {
+      console.log("🟢 [BACKEND] → Estado: missing_sports (sin deportes)");
+    } else if (!hasAllInitPoints && !hasSomeSportsWithPoints) {
       status = "missing_initpoints";
       nextAction = "/initpoints";
-      message = "Usuario necesita configurar puntos iniciales";
+      message = "Usuario necesita configurar puntos iniciales para todos sus deportes";
+      console.log("🟢 [BACKEND] → Estado: missing_initpoints (sin puntos)");
+    } else if (!hasAllInitPoints && hasSomeSportsWithPoints) {
+      status = "partial_config";
+      nextAction = "/selectSport";
+      message = "Usuario tiene algunos deportes configurados. Puede jugar o configurar más deportes";
+      console.log("🟢 [BACKEND] → Estado: partial_config (algunos puntos)");
+    } else if (hasAllInitPoints) {
+      status = "complete";
+      nextAction = "/selectSport";
+      message = "Usuario completamente configurado. Selecciona un deporte para jugar";
+      console.log("🟢 [BACKEND] → Estado: complete (todo configurado)");
     }
+    
+    console.log("🟢 [BACKEND] Estado final:", status);
+    console.log("🟢 [BACKEND] Próxima acción:", nextAction);
 
     // Respuesta exitosa
     const userResponse = {
@@ -155,27 +229,37 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       username: user.username,
       email: user.email,
       birthDate: user.birthDate,
-      age: user.age,
-      points: user.userPoints
+      age: user.age
     };
 
-    const sports = user.userSports.map(us => ({
-      id: us.sport.id,
-      name: us.sport.name
+    const userSports = user.userSports.map(us => ({
+      id: us.id, // UserSport ID
+      sport: {
+        id: us.sport.id,
+        name: us.sport.name
+      },
+      userPoints: us.userPoints ? [us.userPoints] : []
     }));
 
-    return successResponse(res, {
+    console.log("🟢 [BACKEND] Enviando respuesta exitosa...");
+    const responseData = {
       user: userResponse,
-      sports,
+      userSports,
       token,
       validation: {
         status,
         nextAction,
         message,
         hasSports,
-        hasInitPoints
+        hasAllInitPoints,
+        hasSomeSportsWithPoints,
+        sportsWithPointsCount: sportsWithPoints.length,
+        totalSportsCount: hasSports ? user.userSports.length : 0
       }
-    }, message);
+    };
+    console.log("🟢 [BACKEND] Datos de respuesta:", JSON.stringify(responseData, null, 2));
+    
+    return successResponse(res, responseData, message);
   } catch (error) {
     console.error("Error en login:", error);
     return errorResponse(res, "Error interno del servidor");
@@ -186,7 +270,10 @@ router.post("/login", validate(loginSchema), async (req, res) => {
 router.get("/me", authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ 
-      where: { id: req.user.userId },
+      where: { 
+        id: req.user.userId,
+        enabled: true
+      },
       select: {
         id: true,
         name: true,
@@ -197,10 +284,22 @@ router.get("/me", authenticateToken, async (req, res) => {
         birthDate: true,
         age: true,
         createdAt: true,
-        userPoints: {
-          select: {
-            initPoints: true,
-            actualPoints: true
+        userSports: {
+          where: { enabled: true },
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            userPoints: {
+              where: { enabled: true },
+              select: {
+                initPoints: true,
+                actualPoints: true
+              }
+            }
           }
         }
       }
@@ -285,10 +384,20 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
         birthDate: true,
         age: true,
         createdAt: true,
-        userPoints: {
-          select: {
-            initPoints: true,
-            actualPoints: true
+        userSports: {
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            userPoints: {
+              select: {
+                initPoints: true,
+                actualPoints: true
+              }
+            }
           }
         }
       }
@@ -301,50 +410,84 @@ router.put("/profile", authenticateToken, validate(updateProfileSchema), async (
   }
 });
 
-// PUT /auth/initpoints - Configurar puntos iniciales del usuario
+// PUT /auth/initpoints - Configurar puntos iniciales por deporte
 router.put("/initpoints", authenticateToken, async (req, res) => {
   try {
-    const { initPoints } = req.body;
+    const { sportPoints } = req.body; // Array de { sportId, initPoints }
     const userId = req.user.userId;
 
-    // Validar que initPoints sea un número positivo
-    if (!initPoints || typeof initPoints !== 'number' || initPoints <= 0) {
-      return errorResponse(res, "Los puntos iniciales deben ser un número positivo", 400);
+    // Validar que sportPoints sea un array
+    if (!Array.isArray(sportPoints) || sportPoints.length === 0) {
+      return errorResponse(res, "Debes proporcionar puntos para al menos un deporte", 400);
     }
 
-    // Crear o actualizar UserPoints
-    const userPoints = await prisma.userPoints.upsert({
-      where: { userId },
-      update: {
-        initPoints,
-        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
-      },
-      create: {
-        userId,
-        initPoints,
-        actualPoints: initPoints // actualPoints se inicializa igual que initPoints
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            lastName: true,
-            username: true,
-            email: true,
-            createdAt: true
-          }
-        }
+    // Validar que todos los puntos sean válidos
+    for (const sportPoint of sportPoints) {
+      if (!sportPoint.sportId || !sportPoint.initPoints || 
+          typeof sportPoint.initPoints !== 'number' || sportPoint.initPoints <= 0) {
+        return errorResponse(res, "Todos los deportes deben tener puntos iniciales válidos", 400);
       }
+    }
+
+    // Verificar que el usuario tiene estos deportes
+    const userSports = await prisma.userSport.findMany({
+      where: { userId },
+      include: { sport: true }
     });
 
-    return successResponse(res, {
-      user: userPoints.user,
-      points: {
-        initPoints: userPoints.initPoints,
-        actualPoints: userPoints.actualPoints
+    const userSportIds = userSports.map(us => us.id);
+    const sportIds = sportPoints.map(sp => sp.sportId);
+    
+    // Verificar que todos los deportes pertenecen al usuario
+    const validUserSports = userSports.filter(us => 
+      sportPoints.some(sp => sp.sportId === us.sport.id)
+    );
+
+    if (validUserSports.length !== sportPoints.length) {
+      return errorResponse(res, "Algunos deportes no pertenecen al usuario", 400);
+    }
+
+    // Crear o actualizar UserPoints para cada deporte
+    const createdPoints = [];
+    
+    for (const sportPoint of sportPoints) {
+      // Encontrar el userSport correspondiente
+      const userSport = validUserSports.find(us => us.sport.id === sportPoint.sportId);
+      
+      if (userSport) {
+        const userPoints = await prisma.userPoints.upsert({
+          where: { userSportId: userSport.id },
+          update: {
+            initPoints: sportPoint.initPoints,
+            actualPoints: sportPoint.initPoints // actualPoints se inicializa igual que initPoints
+          },
+          create: {
+            userSportId: userSport.id,
+            initPoints: sportPoint.initPoints,
+            actualPoints: sportPoint.initPoints
+          },
+          include: {
+            userSport: {
+              include: {
+                sport: true
+              }
+            }
+          }
+        });
+        
+        createdPoints.push({
+          sport: userPoints.userSport.sport,
+          points: {
+            initPoints: userPoints.initPoints,
+            actualPoints: userPoints.actualPoints
+          }
+        });
       }
-    }, "Puntos iniciales configurados exitosamente");
+    }
+
+    return successResponse(res, {
+      sportsWithPoints: createdPoints
+    }, "Puntos iniciales configurados exitosamente para todos los deportes");
   } catch (error) {
     console.error("Error configurando puntos iniciales:", error);
     return errorResponse(res, "Error interno del servidor");
@@ -358,7 +501,10 @@ router.get("/validate", authenticateToken, async (req, res) => {
 
     // Obtener usuario con sus deportes y puntos
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { 
+        id: userId,
+        enabled: true
+      },
       select: {
         id: true,
         name: true,
@@ -366,19 +512,21 @@ router.get("/validate", authenticateToken, async (req, res) => {
         username: true,
         email: true,
         userSports: {
+          where: { enabled: true },
           include: {
             sport: {
               select: {
                 id: true,
                 name: true
               }
+            },
+            userPoints: {
+              where: { enabled: true },
+              select: {
+                initPoints: true,
+                actualPoints: true
+              }
             }
-          }
-        },
-        userPoints: {
-          select: {
-            initPoints: true,
-            actualPoints: true
           }
         }
       }
@@ -391,8 +539,10 @@ router.get("/validate", authenticateToken, async (req, res) => {
     // Validar si tiene deportes seleccionados
     const hasSports = user.userSports && user.userSports.length > 0;
     
-    // Validar si tiene puntos configurados
-    const hasInitPoints = user.userPoints !== null && user.userPoints !== undefined;
+    // Validar si tiene puntos configurados para todos los deportes
+    const hasAllInitPoints = hasSports && user.userSports.every(us => 
+      us.userPoints && Array.isArray(us.userPoints) && us.userPoints.length > 0
+    );
 
     // Determinar el estado y la próxima acción
     let status = "complete";
@@ -403,10 +553,10 @@ router.get("/validate", authenticateToken, async (req, res) => {
       status = "missing_sports";
       nextAction = "/selectSports";
       message = "Usuario necesita seleccionar al menos un deporte";
-    } else if (!hasInitPoints) {
+    } else if (!hasAllInitPoints) {
       status = "missing_initpoints";
       nextAction = "/initpoints";
-      message = "Usuario necesita configurar puntos iniciales";
+      message = "Usuario necesita configurar puntos iniciales para todos sus deportes";
     }
 
     const validationResponse = {
@@ -415,19 +565,22 @@ router.get("/validate", authenticateToken, async (req, res) => {
         name: user.name,
         lastName: user.lastName,
         username: user.username,
-        email: user.email,
-        points: user.userPoints
+        email: user.email
       },
-      sports: user.userSports.map(us => ({
-        id: us.sport.id,
-        name: us.sport.name
+      userSports: user.userSports.map(us => ({
+        id: us.id, // UserSport ID
+        sport: {
+          id: us.sport.id,
+          name: us.sport.name
+        },
+        userPoints: us.userPoints ? [us.userPoints] : []
       })),
       validation: {
         status,
         nextAction,
         message,
         hasSports,
-        hasInitPoints
+        hasAllInitPoints
       }
     };
 
@@ -444,7 +597,10 @@ router.get("/internal/uuid/:uuid", authenticateToken, async (req, res) => {
     const { uuid } = req.params;
 
     const user = await prisma.user.findUnique({ 
-      where: { id: uuid },
+      where: { 
+        id: uuid,
+        enabled: true
+      },
       select: {
         id: true,
         name: true,
@@ -455,10 +611,22 @@ router.get("/internal/uuid/:uuid", authenticateToken, async (req, res) => {
         birthDate: true,
         age: true,
         createdAt: true,
-        userPoints: {
-          select: {
-            initPoints: true,
-            actualPoints: true
+        userSports: {
+          where: { enabled: true },
+          include: {
+            sport: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            userPoints: {
+              where: { enabled: true },
+              select: {
+                initPoints: true,
+                actualPoints: true
+              }
+            }
           }
         }
       }

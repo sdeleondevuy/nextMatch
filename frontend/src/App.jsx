@@ -5,6 +5,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import SelectSports from "./pages/SelectSports";
 import InitPoints from "./pages/InitPoints";
+import SelectSportToPlay from "./pages/SelectSportToPlay";
+import SportProfile from "./pages/SportProfile";
 import Navbar from "./components/Navbar";
 import SplashScreen from "./components/SplashScreen";
 import "./App.css";
@@ -34,7 +36,9 @@ function AppContent() {
                      location.pathname === '/register' || 
                      location.pathname === '/profile' ||
                      location.pathname === '/selectSports' ||
-                     location.pathname === '/initpoints';
+                     location.pathname === '/initpoints' ||
+                     location.pathname === '/selectSport' ||
+                     location.pathname.startsWith('/profile/');
 
   return (
     <div className="App">
@@ -45,6 +49,8 @@ function AppContent() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/selectSports" element={<SelectSports />} />
         <Route path="/initpoints" element={<InitPoints />} />
+        <Route path="/selectSport" element={<SelectSportToPlay />} />
+        <Route path="/profile/:sportId" element={<SportProfile />} />
       </Routes>
     </div>
   );

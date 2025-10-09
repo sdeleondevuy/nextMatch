@@ -28,7 +28,7 @@ function SportSelector({ isOpen, onClose, onUpdate }) {
       }
 
       if (userSportsResponse.success) {
-        setUserSports(userSportsResponse.data.sports || []);
+        setUserSports(userSportsResponse.data.userSports || []);
       }
     } catch (error) {
       console.error('Error cargando datos:', error);

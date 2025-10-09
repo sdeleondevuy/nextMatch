@@ -52,10 +52,13 @@ export async function registerUser(userData) {
 }
 
 export async function loginUser(credentials) {
-  return apiRequest("/auth/login", {
+  console.log("🟡 [API] Enviando credenciales al backend:", credentials);
+  const result = await apiRequest("/auth/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
+  console.log("🟡 [API] Respuesta del backend:", result);
+  return result;
 }
 
 export async function getCurrentUser() {
@@ -156,10 +159,10 @@ export async function validateUser() {
   });
 }
 
-export async function setInitPoints(initPoints) {
+export async function setInitPoints(sportPoints) {
   return apiRequest("/auth/initpoints", {
     method: "PUT",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ initPoints }),
+    body: JSON.stringify({ sportPoints }),
   });
 }
