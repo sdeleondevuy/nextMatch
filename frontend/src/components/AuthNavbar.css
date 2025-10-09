@@ -6,7 +6,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 50px; /* Desktop más pequeño */
+  height: 60px; /* Desktop ajustado para el logo */
 }
 
 .auth-navbar-container {
@@ -57,7 +57,7 @@
 }
 
 .logo-image {
-  height: 55px; /* Desktop reducido 10px */
+  height: 45px; /* Desktop ajustado para navbar */
   width: auto;
   object-fit: contain;
   padding: 0; /* Sin padding */
@@ -99,7 +99,7 @@
   }
   
   .logo-image {
-    height: 50px; /* Tablet logo reducido 10px */
+    height: 40px; /* Tablet logo ajustado */
   }
   
   .logo-text {
@@ -131,7 +131,7 @@
   }
   
   .logo-image {
-    height: 65px; /* Móvil logo reducido 10px */
+    height: 50px; /* Móvil logo ajustado */
   }
   
   .logo-text {
@@ -148,6 +148,6 @@
   }
   
   .logo-image {
-    height: 55px; /* Desktop logo reducido 10px */
+    height: 45px; /* Desktop logo ajustado para navbar */
   }
 }
