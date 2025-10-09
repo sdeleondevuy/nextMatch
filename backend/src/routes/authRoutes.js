@@ -12,7 +12,7 @@ const router = Router();
 // POST /auth/register
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    const { name, lastName, legalId, username, email, birthDate, password } = req.body;
+    const { name, lastName, legalId, username, email, birthDate, gender, department, password } = req.body;
 
     // Verificar si el usuario ya existe por email, username o cédula
     const existingUser = await prisma.user.findFirst({
@@ -59,6 +59,8 @@ router.post("/register", validate(registerSchema), async (req, res) => {
         email: email.toLowerCase(),
         birthDate: birthDateObj,
         age: finalAge,
+        gender: gender || 'Male',
+        department: department || 'Montevideo',
         password: hashedPassword 
       },
     });
@@ -73,6 +75,8 @@ router.post("/register", validate(registerSchema), async (req, res) => {
       email: user.email,
       birthDate: user.birthDate,
       age: user.age,
+      gender: user.gender,
+      department: user.department,
       createdAt: user.createdAt
     };
 
