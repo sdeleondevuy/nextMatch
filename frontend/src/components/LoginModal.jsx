@@ -45,46 +45,33 @@ function LoginModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🔵 [FRONTEND] Iniciando proceso de login...");
-    console.log("🔵 [FRONTEND] Datos del formulario:", formData);
     setLoading(true);
     setError('');
 
     try {
-      console.log("🔵 [FRONTEND] Llamando a loginUser...");
       const response = await loginUser(formData);
-      console.log("🔵 [FRONTEND] Respuesta recibida:", response);
       if (response.success) {
-        console.log("🔵 [FRONTEND] Login exitoso! Guardando token...");
         // Guardar token en localStorage para mantener la sesión
         saveToken(response.data.token);
-        console.log("🔵 [FRONTEND] Token guardado:", response.data.token);
         
         // Verificar el estado de validación del usuario
         const validation = response.data.validation;
-        console.log("🔵 [FRONTEND] Estado de validación:", validation);
         
         onClose();
         
         // Navegar según el estado de validación
-        console.log("🔵 [FRONTEND] Navegando según estado:", validation.status);
         if (validation.status === 'missing_sports') {
-          console.log("🔵 [FRONTEND] → Navegando a /selectSports");
           navigate('/selectSports');
         } else if (validation.status === 'missing_initpoints') {
-          console.log("🔵 [FRONTEND] → Navegando a /initpoints");
           navigate('/initpoints');
         } else {
-          console.log("🔵 [FRONTEND] → Navegando a /selectSport");
           // Usuario completamente configurado - ir a selección de deporte para jugar
           navigate('/selectSport');
         }
       }
     } catch (error) {
-      console.log("🔴 [FRONTEND] Error en login:", error);
       setError(error.message || 'Error al iniciar sesión');
     } finally {
-      console.log("🔵 [FRONTEND] Finalizando proceso de login...");
       setLoading(false);
     }
   };

@@ -6,6 +6,7 @@ import AuthNavbar from '../components/AuthNavbar';
 function SelectSportToPlay() {
   const [user, setUser] = useState(null);
   const [availableSports, setAvailableSports] = useState([]);
+  const [sportsWithoutPoints, setSportsWithoutPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,26 +27,28 @@ function SelectSportToPlay() {
       if (response.success) {
         setUser(response.data);
         
-        // Filtrar solo deportes que tienen puntos configurados
-        console.log("🔵 [FRONTEND] Datos del usuario recibidos:", response.data);
-        console.log("🔵 [FRONTEND] UserSports:", response.data.userSports);
-        
+        // Filtrar deportes con y sin puntos configurados
         const sportsWithPoints = response.data.userSports.filter(userSport => {
           const hasPoints = userSport.userPoints && (
-            (Array.isArray(userSport.userPoints) && userSport.userPoints.length > 0) ||
-            (typeof userSport.userPoints === 'object' && userSport.userPoints.initPoints !== undefined)
+            (Array.isArray(userSport.userPoints) && userSport.userPoints.length > 0 && userSport.userPoints[0].initPoints > 0) ||
+            (typeof userSport.userPoints === 'object' && userSport.userPoints.initPoints !== undefined && userSport.userPoints.initPoints > 0)
           );
-          console.log(`🔵 [FRONTEND] ${userSport.sport.name} tiene puntos:`, hasPoints, userSport.userPoints);
           return hasPoints;
         });
         
-        console.log("🔵 [FRONTEND] Deportes con puntos encontrados:", sportsWithPoints.length);
+        const sportsWithoutPoints = response.data.userSports.filter(userSport => {
+          const hasPoints = userSport.userPoints && (
+            (Array.isArray(userSport.userPoints) && userSport.userPoints.length > 0 && userSport.userPoints[0].initPoints > 0) ||
+            (typeof userSport.userPoints === 'object' && userSport.userPoints.initPoints !== undefined && userSport.userPoints.initPoints > 0)
+          );
+          return !hasPoints;
+        });
         
         setAvailableSports(sportsWithPoints);
+        setSportsWithoutPoints(sportsWithoutPoints);
         
-        // Si solo tiene un deporte, redirigir directamente al perfil general (temporal)
-        if (sportsWithPoints.length === 1) {
-          console.log("🔵 [FRONTEND] Solo un deporte, navegando a perfil general");
+        // Si solo tiene un deporte configurado y no hay deportes sin configurar, redirigir al perfil general
+        if (sportsWithPoints.length === 1 && sportsWithoutPoints.length === 0) {
           navigate('/profile');
         }
       }
@@ -61,8 +64,7 @@ function SelectSportToPlay() {
   };
 
   const handleSportSelect = (sportId) => {
-    console.log("🔵 [FRONTEND] Deporte seleccionado:", sportId);
-    console.log("🔵 [FRONTEND] Navegando a perfil general (temporal)");
+    // Navegar al perfil general (implementación futura: perfil específico por deporte)
     navigate('/profile');
   };
 
@@ -207,6 +209,14 @@ function SelectSportToPlay() {
 
           {/* Actions */}
           <div className="text-center space-y-3">
+            {sportsWithoutPoints.length > 0 && (
+              <button
+                onClick={() => navigate('/initpoints')}
+                className="btn-primary w-full py-3 text-lg font-medium mb-4"
+              >
+                ⚙️ Configurar Puntos para {sportsWithoutPoints.length} Deporte{sportsWithoutPoints.length !== 1 ? 's' : ''} Restante{sportsWithoutPoints.length !== 1 ? 's' : ''}
+              </button>
+            )}
             <button
               onClick={handleBackToProfile}
               className="text-gray-600 hover:text-gray-800 transition-colors"
@@ -221,7 +231,17 @@ function SelectSportToPlay() {
               <h3 className="font-semibold text-gray-900">{user.name} {user.lastName}</h3>
               <p className="text-sm text-gray-500">
                 {availableSports.length} deporte{availableSports.length !== 1 ? 's' : ''} configurado{availableSports.length !== 1 ? 's' : ''}
+                {sportsWithoutPoints.length > 0 && (
+                  <span className="text-orange-600">
+                    {' • '}{sportsWithoutPoints.length} deporte{sportsWithoutPoints.length !== 1 ? 's' : ''} pendiente{sportsWithoutPoints.length !== 1 ? 's' : ''} de configuración
+                  </span>
+                )}
               </p>
+              {sportsWithoutPoints.length > 0 && (
+                <div className="mt-2 text-xs text-gray-500">
+                  Deportes pendientes: {sportsWithoutPoints.map(sport => sport.sport.name).join(', ')}
+                </div>
+              )}
             </div>
           </div>
         </div>

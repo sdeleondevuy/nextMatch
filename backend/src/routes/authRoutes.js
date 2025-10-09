@@ -87,10 +87,6 @@ router.post("/register", validate(registerSchema), async (req, res) => {
 router.post("/login", validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🟢 [BACKEND] Iniciando proceso de login para:", email);
-
-    // Buscar usuario con sus deportes y puntos
-    console.log("🟢 [BACKEND] Buscando usuario en la base de datos...");
     const user = await prisma.user.findUnique({ 
       where: { 
         email: email.toLowerCase(),
@@ -118,79 +114,46 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       }
     });
     
-    console.log("🟢 [BACKEND] Usuario encontrado:", user ? "SÍ" : "NO");
     if (!user) {
-      console.log("🟢 [BACKEND] Usuario no encontrado, devolviendo error 401");
       return errorResponse(res, "Credenciales inválidas", 401);
     }
 
     // Verificar contraseña
-    console.log("🟢 [BACKEND] Verificando contraseña...");
     const validPassword = await bcrypt.compare(password, user.password);
-    console.log("🟢 [BACKEND] Contraseña válida:", validPassword ? "SÍ" : "NO");
     if (!validPassword) {
-      console.log("🟢 [BACKEND] Contraseña inválida, devolviendo error 401");
       return errorResponse(res, "Credenciales inválidas", 401);
     }
 
     // Generar token JWT
-    console.log("🟢 [BACKEND] Generando token JWT...");
     const token = generateToken({ 
       userId: user.id,
       email: user.email 
     });
-    console.log("🟢 [BACKEND] Token generado:", token.substring(0, 20) + "...");
 
     // Validar estado del usuario
-    console.log("🟢 [BACKEND] Validando estado del usuario...");
-    console.log("🟢 [BACKEND] UserSports encontrados:", user.userSports?.length || 0);
     const hasSports = user.userSports && user.userSports.length > 0;
-    console.log("🟢 [BACKEND] Usuario tiene deportes:", hasSports);
     
-    // La validación debe verificar que cada userSport tenga userPoints
-    // userPoints viene como un array de objetos desde Prisma
-    console.log("🟢 [BACKEND] Verificando puntos iniciales...");
+    // Verificar que cada userSport tenga userPoints configurados (initPoints > 0)
     const hasAllInitPoints = hasSports && user.userSports.every(us => {
       const hasPoints = us.userPoints && (
-        (Array.isArray(us.userPoints) && us.userPoints.length > 0) ||
-        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined)
+        (Array.isArray(us.userPoints) && us.userPoints.length > 0 && us.userPoints[0].initPoints > 0) ||
+        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined && us.userPoints.initPoints > 0)
       );
       return hasPoints;
     });
-    console.log("🟢 [BACKEND] Todos los deportes tienen puntos:", hasAllInitPoints);
     
-    // Contar deportes con puntos configurados
-    console.log("🟢 [BACKEND] === DEBUGGING SPORTS WITH POINTS ===");
-    console.log("🟢 [BACKEND] Total userSports:", user.userSports.length);
-    
-    user.userSports.forEach((us, index) => {
-      console.log(`🟢 [BACKEND] Deporte ${index + 1}:`, {
-        sportName: us.sport.name,
-        userPoints: us.userPoints,
-        userPointsType: typeof us.userPoints,
-        userPointsIsArray: Array.isArray(us.userPoints),
-        userPointsLength: us.userPoints ? us.userPoints.length : 'N/A'
-      });
-    });
-    
+    // Contar deportes con puntos configurados (initPoints > 0)
     const sportsWithPoints = hasSports ? user.userSports.filter(us => {
-      // Verificar si userPoints existe y tiene datos
       const hasPoints = us.userPoints && (
-        (Array.isArray(us.userPoints) && us.userPoints.length > 0) ||
-        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined)
+        (Array.isArray(us.userPoints) && us.userPoints.length > 0 && us.userPoints[0].initPoints > 0) ||
+        (typeof us.userPoints === 'object' && us.userPoints.initPoints !== undefined && us.userPoints.initPoints > 0)
       );
-      console.log(`🟢 [BACKEND] ${us.sport.name} tiene puntos:`, hasPoints);
-      console.log(`🟢 [BACKEND] ${us.sport.name} userPoints detalle:`, us.userPoints);
       return hasPoints;
     }) : [];
     
     const hasSomeSportsWithPoints = sportsWithPoints.length > 0;
-    console.log("🟢 [BACKEND] Algunos deportes tienen puntos:", hasSomeSportsWithPoints);
-    console.log("🟢 [BACKEND] Deportes con puntos:", sportsWithPoints.length);
-    console.log("🟢 [BACKEND] === FIN DEBUGGING ===");
 
     // Determinar el estado y la próxima acción
-    console.log("🟢 [BACKEND] Determinando estado del usuario...");
     let status = "complete";
     let nextAction = "/profile";
     let message = "Login exitoso";
@@ -199,26 +162,19 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       status = "missing_sports";
       nextAction = "/selectSports";
       message = "Usuario necesita seleccionar al menos un deporte";
-      console.log("🟢 [BACKEND] → Estado: missing_sports (sin deportes)");
     } else if (!hasAllInitPoints && !hasSomeSportsWithPoints) {
       status = "missing_initpoints";
       nextAction = "/initpoints";
       message = "Usuario necesita configurar puntos iniciales para todos sus deportes";
-      console.log("🟢 [BACKEND] → Estado: missing_initpoints (sin puntos)");
     } else if (!hasAllInitPoints && hasSomeSportsWithPoints) {
       status = "partial_config";
       nextAction = "/selectSport";
       message = "Usuario tiene algunos deportes configurados. Puede jugar o configurar más deportes";
-      console.log("🟢 [BACKEND] → Estado: partial_config (algunos puntos)");
     } else if (hasAllInitPoints) {
       status = "complete";
       nextAction = "/selectSport";
       message = "Usuario completamente configurado. Selecciona un deporte para jugar";
-      console.log("🟢 [BACKEND] → Estado: complete (todo configurado)");
     }
-    
-    console.log("🟢 [BACKEND] Estado final:", status);
-    console.log("🟢 [BACKEND] Próxima acción:", nextAction);
 
     // Respuesta exitosa
     const userResponse = {
@@ -241,8 +197,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       userPoints: us.userPoints ? [us.userPoints] : []
     }));
 
-    console.log("🟢 [BACKEND] Enviando respuesta exitosa...");
-    const responseData = {
+    return successResponse(res, {
       user: userResponse,
       userSports,
       token,
@@ -256,10 +211,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
         sportsWithPointsCount: sportsWithPoints.length,
         totalSportsCount: hasSports ? user.userSports.length : 0
       }
-    };
-    console.log("🟢 [BACKEND] Datos de respuesta:", JSON.stringify(responseData, null, 2));
-    
-    return successResponse(res, responseData, message);
+    }, message);
   } catch (error) {
     console.error("Error en login:", error);
     return errorResponse(res, "Error interno del servidor");

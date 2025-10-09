@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getCurrentUser, updateProfile, removeToken, getUserSports, handleAuthError } from "../services/api";
+import { getCurrentUser, updateProfile, removeToken, getUserSports, updateUserSports, handleAuthError } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import SportSelector from "../components/SportSelector";
 import AuthNavbar from "../components/AuthNavbar";
@@ -121,16 +121,26 @@ function Profile() {
     navigate("/");
   };
 
-  const handleSportUpdate = async (updatedData) => {
-    // Recargar los deportes del usuario desde la API para obtener los datos completos
+  const handleSportUpdate = async (sportIds) => {
     try {
-      const sportsResponse = await getUserSports();
-      if (sportsResponse.success) {
-        const sports = sportsResponse.data.userSports || [];
-        setUserSports(sports);
+      setLoading(true);
+      setMessage('');
+      
+      // Llamar al backend para actualizar los deportes
+      const response = await updateUserSports(sportIds);
+      
+      if (response.success) {
+        // Actualizar la lista de deportes con la respuesta del backend
+        setUserSports(response.data.userSports || []);
+        setMessage("✅ Deportes actualizados exitosamente");
+      } else {
+        setMessage("Error actualizando deportes");
       }
     } catch (error) {
-      console.error('Error recargando deportes:', error);
+      console.error('Error actualizando deportes:', error);
+      setMessage("Error actualizando deportes");
+    } finally {
+      setLoading(false);
     }
   };
 

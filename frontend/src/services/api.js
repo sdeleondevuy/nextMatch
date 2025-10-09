@@ -52,13 +52,10 @@ export async function registerUser(userData) {
 }
 
 export async function loginUser(credentials) {
-  console.log("🟡 [API] Enviando credenciales al backend:", credentials);
-  const result = await apiRequest("/auth/login", {
+  return apiRequest("/auth/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
-  console.log("🟡 [API] Respuesta del backend:", result);
-  return result;
 }
 
 export async function getCurrentUser() {
