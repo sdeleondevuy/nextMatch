@@ -38,7 +38,7 @@ function Home() {
             </button>
             
             <Link 
-              to="/register" 
+              to="/register-step1" 
               className="home-btn home-btn-register"
             >
               Registrarse

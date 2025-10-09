@@ -40,6 +40,16 @@ export const registerSchema = z.object({
       const age = today.getFullYear() - birthDate.getFullYear();
       return age >= 13 && age <= 120;
     }, { message: "Debes tener entre 13 y 120 años" }),
+  gender: z.enum(['Male', 'Female', 'Undefined'], { 
+    message: "El género debe ser Masculino, Femenino o Prefiero no contestar" 
+  }).optional(),
+  department: z.enum([
+    'Montevideo', 'Artigas', 'Canelones', 'CerroLargo', 'Colonia', 'Durazno', 
+    'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Paysandu', 'RioNegro', 
+    'Rivera', 'Rocha', 'Salto', 'SanJose', 'Soriano', 'Tacuarembo', 'TreintaYTres'
+  ], { 
+    message: "El departamento debe ser uno de los 19 departamentos de Uruguay" 
+  }).optional(),
   password: passwordSchema,
 });
 

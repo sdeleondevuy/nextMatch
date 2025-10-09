@@ -7,18 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  Male
+  Female
+  Undefined
+}
+
+enum Department {
+  Montevideo
+  Artigas
+  Canelones
+  CerroLargo
+  Colonia
+  Durazno
+  Flores
+  Florida
+  Lavalleja
+  Maldonado
+  Paysandu
+  RioNegro
+  Rivera
+  Rocha
+  Salto
+  SanJose
+  Soriano
+  Tacuarembo
+  TreintaYTres
+}
+
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String     @id @default(uuid()) @db.Uuid
   name         String
   lastName     String
-  username     String   @unique
-  legalId      String   @unique
-  email        String   @unique
+  username     String     @unique
+  legalId      String     @unique
+  email        String     @unique
   birthDate    DateTime
   age          Int
+  gender       Gender     @default(Male)
+  department   Department @default(Montevideo)
   password     String
-  enabled      Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  enabled      Boolean    @default(true)
+  createdAt    DateTime   @default(now())
   
   // Relaciones
   userSports   UserSport[]
