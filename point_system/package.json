@@ -1,0 +1,20 @@
+{
+  "name": "tennis-point-system",
+  "version": "1.0.0",
+  "description": "Sistema de cálculo logarítmico para puntos iniciales de tenis",
+  "type": "module",
+  "main": "src/nivelador-tenis.js",
+  "scripts": {
+    "start": "node src/nivelador-tenis.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tennis",
+    "rating",
+    "logarithmic",
+    "points"
+  ],
+  "author": "JSM",
+  "license": "ISC",
+  "dependencies": {}
+}
