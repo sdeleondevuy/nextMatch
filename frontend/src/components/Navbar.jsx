@@ -73,7 +73,7 @@ function Navbar() {
                   <Link to="/" className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     Iniciar Sesión
                   </Link>
-                  <Link to="/register" className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                  <Link to="/register-step1" className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                     Registrarse
                   </Link>
                 </>

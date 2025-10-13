@@ -161,7 +161,7 @@ function LoginModal({ isOpen, onClose }) {
           <div className="register-link">
             <p>¿No tienes cuenta? <button type="button" onClick={() => {
               onClose();
-              navigate('/register');
+              navigate('/register-step1');
             }}>Regístrate aquí</button></p>
           </div>
         </form>

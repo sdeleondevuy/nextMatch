@@ -163,3 +163,38 @@ export async function setInitPoints(sportPoints) {
     body: JSON.stringify({ sportPoints }),
   });
 }
+
+// ===== POINT SYSTEM ENDPOINTS =====
+
+export async function calculateLevel(puntos) {
+  return apiRequest("/auth/calculate-level", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ puntos }),
+  });
+}
+
+// ===== QUESTIONNAIRE ENDPOINTS =====
+
+export async function getQuestionnaireStart() {
+  return apiRequest("/auth/questionnaire/start", {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function getQuestionnaireNext(respuestas) {
+  return apiRequest("/auth/questionnaire/next", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ respuestas }),
+  });
+}
+
+export async function calculateInitPointsFromAnswers(respuestas) {
+  return apiRequest("/auth/questionnaire/calculate", {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ respuestas }),
+  });
+}

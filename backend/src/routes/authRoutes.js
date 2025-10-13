@@ -6,6 +6,8 @@ import { registerSchema, loginSchema, updateProfileSchema } from "../schemas/Aut
 import { successResponse, errorResponse } from "../utils/response.js";
 import { generateToken } from "../utils/jwt.js";
 import authenticateToken from "../middleware/auth.js";
+import { calcularNivelDesdePuntos, obtenerInfoNivel } from "../utils/pointSystem.js";
+import { preguntasBase, preguntasExtra, preguntasAvanzadas, obtenerPreguntasSiguientes, calcularInitPointsDesdeRespuestas } from "../utils/questionnaire.js";
 
 const router = Router();
 
@@ -596,6 +598,89 @@ router.get("/internal/uuid/:uuid", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error obteniendo usuario por UUID:", error);
     return errorResponse(res, "Error interno del servidor");
+  }
+});
+
+// POST /auth/calculate-level
+router.post("/calculate-level", authenticateToken, async (req, res) => {
+  try {
+    const { puntos } = req.body;
+    
+    if (typeof puntos !== 'number' || puntos < 0 || puntos > 2000) {
+      return errorResponse(res, "Los puntos deben ser un número entre 0 y 2000", 400);
+    }
+    
+    const infoNivel = obtenerInfoNivel(puntos);
+    
+    return successResponse(res, infoNivel, "Nivel calculado exitosamente");
+  } catch (error) {
+    console.error("Error calculando nivel:", error);
+    return errorResponse(res, "Error interno del servidor");
+  }
+});
+
+// GET /auth/questionnaire/start
+// Obtiene las preguntas base para iniciar el cuestionario
+router.get("/questionnaire/start", authenticateToken, async (req, res) => {
+  try {
+    return successResponse(res, {
+      tipo: 'base',
+      preguntas: preguntasBase
+    }, "Preguntas base obtenidas exitosamente");
+  } catch (error) {
+    console.error("Error obteniendo preguntas:", error);
+    return errorResponse(res, "Error interno del servidor");
+  }
+});
+
+// POST /auth/questionnaire/next
+// Obtiene las siguientes preguntas basadas en las respuestas actuales
+router.post("/questionnaire/next", authenticateToken, async (req, res) => {
+  try {
+    const { respuestas } = req.body;
+    
+    if (!Array.isArray(respuestas)) {
+      return errorResponse(res, "Las respuestas deben ser un array", 400);
+    }
+    
+    // Extraer solo los puntajes de las respuestas
+    const respuestasBase = respuestas.map(r => r.puntaje);
+    const puntajeTotal = respuestasBase.reduce((sum, p) => sum + p, 0);
+    
+    // Obtener siguientes preguntas
+    const resultado = obtenerPreguntasSiguientes(respuestasBase, puntajeTotal);
+    
+    return successResponse(res, resultado, "Siguientes preguntas obtenidas exitosamente");
+  } catch (error) {
+    console.error("Error obteniendo siguientes preguntas:", error);
+    return errorResponse(res, "Error interno del servidor");
+  }
+});
+
+// POST /auth/questionnaire/calculate
+// Calcula el initPoints final desde todas las respuestas
+router.post("/questionnaire/calculate", authenticateToken, async (req, res) => {
+  try {
+    const { respuestas } = req.body;
+    
+    if (!Array.isArray(respuestas) || respuestas.length === 0) {
+      return errorResponse(res, "Las respuestas deben ser un array con al menos una respuesta", 400);
+    }
+    
+    // Calcular initPoints
+    const initPoints = calcularInitPointsDesdeRespuestas(respuestas);
+    
+    // Calcular nivel
+    const infoNivel = obtenerInfoNivel(initPoints);
+    
+    return successResponse(res, {
+      initPoints,
+      nivel: infoNivel.nivel,
+      nivelInfo: infoNivel
+    }, "InitPoints calculado exitosamente");
+  } catch (error) {
+    console.error("Error calculando initPoints:", error);
+    return errorResponse(res, error.message || "Error interno del servidor");
   }
 });
 

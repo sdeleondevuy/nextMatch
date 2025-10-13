@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
-import Register from "./pages/Register";
 import RegisterStep1 from "./pages/RegisterStep1";
 import RegisterStep2 from "./pages/RegisterStep2";
 import Profile from "./pages/Profile";
@@ -49,7 +48,7 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Navigate to="/register-step1" replace />} />
         <Route path="/register-step1" element={<RegisterStep1 />} />
         <Route path="/register-step2" element={<RegisterStep2 />} />
         <Route path="/profile" element={<Profile />} />
