@@ -145,13 +145,13 @@ const preguntasExtra = [
     id: 7,
     texto: "¿Ganaste o jugaste alguna final en los torneos disputados?",
     opciones: [
-      { texto: "Nunca tuve el gusto", puntaje: 0 },
-      { texto: "Una vez jugué una final", puntaje: 1 },
-      { texto: "Muy pocas veces y una vez salí campeón", puntaje: 3 },
-      { texto: "Normalmente defino los torneos y tengo varios títulos", puntaje: 4 },
+      { texto: "Nunca tuve el gusto", puntaje: 1 },
+      { texto: "Una vez jugué una final", puntaje: 2 },
+      { texto: "Muy pocas veces y una vez salí campeón", puntaje: 5 },
+      { texto: "Normalmente defino los torneos y tengo varios títulos", puntaje: 8 },
     ],
     condicion: () =>
-      respuestasBase[4] === 8 || (respuestasBase[4] === 3 && puntajeTotal > 10),
+      respuestasBase[4] === 8,
   },
   {
     id: 8,
@@ -163,7 +163,7 @@ const preguntasExtra = [
       { texto: "Juego para sentir la competencias, quiero ganar y ser campeón", puntaje: 3 },
     ],
     condicion: () =>
-      respuestasBase[5] === 8 || (respuestasBase[4] > 1 && puntajeTotal > 10),
+      respuestasBase[4] === 8 || (respuestasBase[4] > 1 && puntajeTotal > 10),
   },{
     id: 9,
     texto: "¿Cómo son tus entrenamientos personalizados?",
@@ -174,6 +174,54 @@ const preguntasExtra = [
     ],
     condicion: () =>
       respuestasBase[5] > 2 && (respuestasBase[4] > 3),
+  },
+  {
+    id: 10,
+    texto: "¿Ganaste o jugaste alguna final en los torneos disputados?",
+    opciones: [
+      { texto: "Nunca tuve el gusto", puntaje: 0 },
+      { texto: "Una vez jugué una final", puntaje: 1 },
+      { texto: "Muy pocas veces y una vez salí campeón", puntaje: 3 },
+      { texto: "Normalmente defino los torneos y tengo varios títulos", puntaje: 4 },
+    ],
+    condicion: () =>
+      respuestasBase[4] === 3 && puntajeTotal > 10,
+  },
+ ];
+
+// === TERCERA ETAPA CONDICIONAL ===
+// Estructura para preguntas avanzadas (nivel alto)
+// Para completar cada pregunta:
+// 1. Cambiar "TEXTO_PREGUNTA_X" por la pregunta real
+// 2. Cambiar "OPCION_X" por las opciones reales
+// 3. Ajustar los puntajes según corresponda
+// 4. Definir la condición en la función condicion()
+const preguntasAvanzadas = [
+  {
+    id: 11,
+    texto: "Veo que el tenis es muy importante para vos, vamos a afinar tu nivel un poco mas, ¿Jugaste alguna vez torneos internacionales?", // Completar con el texto de la pregunta
+    opciones: [
+      { texto: "Nunca, lo veo muy lejanos", puntaje: 0 }, // Completar con opciones y puntajes
+      { texto: "No, pero lo tengo en mente proximamente", puntaje: 2 },
+      { texto: "Alguna vez he jugado pero sin mucho éxito", puntaje: 4 },
+      { texto: "Si, juego torneos internacionales y he sido campeón", puntaje: 8 },
+    ],
+    condicion: () => {
+      return respuestasBase[4] === 8 && puntajeTotal > 35; // Jugadores A/B con buen puntaje
+    },
+  },
+  {
+    id: 12,
+    texto: "Si tuvieras que ser describir la situación actual de tu tenis, ¿cómo lo describirías?", // Completar con el texto de la pregunta
+    opciones: [
+      { texto: "Me cuesta mucho ganar en los torneos exigentes, pero a la vez es emocionante", puntaje: 0 }, // Completar con opciones y puntajes
+      { texto: "Normalmente las primeras rondas me resultan accesibles, luego la historia es otra", puntaje: 1 },
+      { texto: "Suelo ser quien impone el ritmo en los partidos y domino el juego", puntaje: 2 },
+      { texto: "Cuando estoy en un buen día, creo que a nivel amateur puedo ganar contra cualquiera", puntaje: 5 },
+    ],
+    condicion: () => {
+      return respuestasBase[4] === 8 && puntajeTotal > 40; // Jugadores A/B con muy buen puntaje
+    },
   },
 ];
 
@@ -192,11 +240,11 @@ function segundaEtapa() {
       if (sel >= 0 && sel < p.opciones.length) {
         puntajeTotal += p.opciones[sel].puntaje;
         i++;
-        if (i < extras.length) {
-          preguntarExtra();
-        } else {
-          finalizar();
-        }
+         if (i < extras.length) {
+           preguntarExtra();
+         } else {
+           terceraEtapa();
+         }
       } else {
         console.log("⚠️ Opción inválida, intentá nuevamente.");
         preguntarExtra();
@@ -205,6 +253,37 @@ function segundaEtapa() {
   }
 
   preguntarExtra();
+}
+
+// === TERCERA ETAPA CONDICIONAL ===
+function terceraEtapa() {
+  const avanzadas = preguntasAvanzadas.filter((p) => p.condicion());
+  if (avanzadas.length === 0) return finalizar();
+
+  let j = 0;
+  function preguntarAvanzada() {
+    const p = avanzadas[j];
+    console.log(`\n${p.id}. ${p.texto}`);
+    p.opciones.forEach((opt, idx) => console.log(`  ${idx + 1}) ${opt.texto}`));
+
+    rl.question("Elegí una opción (1-" + p.opciones.length + "): ", (resp) => {
+      const sel = parseInt(resp) - 1;
+      if (sel >= 0 && sel < p.opciones.length) {
+        puntajeTotal += p.opciones[sel].puntaje;
+        j++;
+        if (j < avanzadas.length) {
+          preguntarAvanzada();
+        } else {
+          finalizar();
+        }
+      } else {
+        console.log("⚠️ Opción inválida, intentá nuevamente.");
+        preguntarAvanzada();
+      }
+    });
+  }
+
+  preguntarAvanzada();
 }
 
 // === FINALIZAR ===
