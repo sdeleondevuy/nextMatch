@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getCurrentUser, handleAuthError } from '../services/api';
+import { getCurrentUser, handleAuthError, calculateLevel } from '../services/api';
 import AuthNavbar from '../components/AuthNavbar';
 
 function SportProfile() {
   const { sportId } = useParams();
   const [user, setUser] = useState(null);
   const [selectedSport, setSelectedSport] = useState(null);
+  const [levelInfo, setLevelInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -25,12 +26,27 @@ function SportProfile() {
         // Encontrar el deporte específico
         const sport = response.data.userSports.find(userSport => 
           userSport.sport.id === sportId && 
-          userSport.userPoints && 
-          userSport.userPoints.length > 0
+          userSport.userPoints
         );
         
         if (sport) {
           setSelectedSport(sport);
+          
+          // Calcular nivel desde actualPoints
+          const points = Array.isArray(sport.userPoints) 
+            ? sport.userPoints[0] 
+            : sport.userPoints;
+          
+          if (points && points.actualPoints) {
+            try {
+              const levelResponse = await calculateLevel(points.actualPoints);
+              if (levelResponse.success) {
+                setLevelInfo(levelResponse.data);
+              }
+            } catch (levelError) {
+              console.error("Error calculando nivel:", levelError);
+            }
+          }
         } else {
           setError('Deporte no encontrado o sin puntos configurados');
         }
@@ -89,148 +105,185 @@ function SportProfile() {
     );
   }
 
-  const points = selectedSport.userPoints[0];
+  const points = Array.isArray(selectedSport.userPoints) 
+    ? selectedSport.userPoints[0] 
+    : selectedSport.userPoints;
   const pointsDifference = points.actualPoints - points.initPoints;
   const isPositive = pointsDifference >= 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <AuthNavbar />
       
       <div className="flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl w-full">
+        <div className="max-w-4xl w-full">
           {/* Header */}
           <div className="text-center mb-8">
             <button
               onClick={handleBackToSports}
-              className="text-blue-600 hover:text-blue-800 mb-4 flex items-center mx-auto"
+              className="text-blue-600 hover:text-blue-800 mb-4 flex items-center mx-auto transition-colors"
             >
               ← Volver a deportes
             </button>
-            <h1 className="text-3xl font-bold text-black mb-2">
-              Perfil de {selectedSport.sport.name}
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {selectedSport.sport.name}
             </h1>
             <p className="text-gray-600">
-              {user.name} {user.lastName} • {selectedSport.sport.name}
+              {user.name} {user.lastName}
             </p>
           </div>
 
-          {/* Sport Stats Card */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
-            {/* Sport Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-2xl">
-                    {selectedSport.sport.name.charAt(0)}
+          {/* Level Card - Destacado */}
+          {levelInfo && (
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 mb-6 shadow-xl text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Tu Nivel Actual</p>
+                  <h2 className="text-5xl font-bold mb-2">Nivel {levelInfo.nivel}</h2>
+                  <p className="text-blue-100 text-sm">
+                    Rango: {levelInfo.rangoMin} - {levelInfo.rangoMax} puntos
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-2">
+                    <span className="text-4xl font-bold">{levelInfo.nivel}</span>
+                  </div>
+                  <p className="text-sm text-blue-100">
+                    {points.actualPoints} pts
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Stats Card */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Estadísticas</h3>
+              
+              {/* Stats Grid */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-600">Puntos Actuales</span>
+                  <span className={`text-xl font-bold ${
+                    isPositive ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {points.actualPoints}
                   </span>
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedSport.sport.name}
-                  </h2>
-                  <p className="text-gray-500">Tu puntaje actual</p>
+                
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-600">Puntos Iniciales</span>
+                  <span className="text-xl font-bold text-gray-900">
+                    {points.initPoints}
+                  </span>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className={`text-3xl font-bold ${
-                  isPositive ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {points.actualPoints}
+                
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-600">Diferencia</span>
+                  <span className={`text-xl font-bold ${
+                    isPositive ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {isPositive ? '+' : ''}{pointsDifference}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-500">puntos</div>
+                
+                {levelInfo && (
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <span className="text-sm text-blue-900 font-medium">Nivel Actual</span>
+                    <span className="text-xl font-bold text-blue-600">
+                      Nivel {levelInfo.nivel}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Progress Section */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Progreso</span>
-                <span className="text-sm text-gray-500">
-                  {points.actualPoints} / {points.initPoints}
+            {/* Ranking Card */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🏆 Ranking</h3>
+              
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="text-3xl font-bold text-orange-600 mb-1">
+                    #1
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Posición Local
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    (Próximamente)
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xl font-bold text-gray-900">-</div>
+                    <div className="text-xs text-gray-500">Victorias</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xl font-bold text-gray-900">-</div>
+                    <div className="text-xs text-gray-500">Derrotas</div>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-center text-gray-500 mt-2">
+                  Los datos de ranking estarán disponibles próximamente
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate(`/play/${selectedSport.sport.id}`)}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+              >
+                🎾 Jugar {selectedSport.sport.name}
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-gray-700 font-medium"
+                >
+                  👤 Perfil General
+                </button>
+                <button
+                  onClick={handleBackToSports}
+                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-gray-700 font-medium"
+                >
+                  🔄 Cambiar Deporte
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* User Info Card */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">👤 Información del Usuario</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Nombre</span>
+                <span className="font-medium text-gray-900">{user.name} {user.lastName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Email</span>
+                <span className="font-medium text-gray-900">{user.email}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Deportes Activos</span>
+                <span className="font-medium text-gray-900">
+                  {user.userSports.filter(us => us.userPoints).length}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className={`h-3 rounded-full ${
-                    isPositive ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(100, (points.actualPoints / points.initPoints) * 100)}%`
-                  }}
-                ></div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Departamento</span>
+                <span className="font-medium text-gray-900">{user.department || 'No especificado'}</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0</span>
-                <span>Inicial: {points.initPoints}</span>
-              </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-500 mb-1">Puntos Iniciales</div>
-                <div className="text-xl font-semibold text-gray-900">
-                  {points.initPoints}
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-500 mb-1">Diferencia</div>
-                <div className={`text-xl font-semibold ${
-                  isPositive ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {isPositive ? '+' : ''}{pointsDifference}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate(`/play/${selectedSport.sport.id}`)}
-              className="btn-primary w-full py-3 text-lg font-medium"
-            >
-              🎾 Jugar {selectedSport.sport.name}
-            </button>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={handleEditProfile}
-                className="btn-secondary py-2"
-              >
-                ✏️ Editar Puntos
-              </button>
-              <button
-                onClick={() => navigate('/profile')}
-                className="btn-secondary py-2"
-              >
-                👤 Perfil General
-              </button>
-            </div>
-          </div>
-
-          {/* Sport Info */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-blue-800 font-semibold mb-2 text-sm">
-              📊 Estadísticas de {selectedSport.sport.name}
-            </h3>
-            <div className="text-blue-700 text-sm space-y-1">
-              <div>• Puntos iniciales: {points.initPoints}</div>
-              <div>• Puntos actuales: {points.actualPoints}</div>
-              <div>• Diferencia: {isPositive ? '+' : ''}{pointsDifference} puntos</div>
-              <div>• Estado: {isPositive ? '📈 Ganando' : '📉 Perdiendo'}</div>
-            </div>
-          </div>
-
-          {/* User Info */}
-          <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-center">
-              <h3 className="font-semibold text-gray-900">{user.name} {user.lastName}</h3>
-              <p className="text-sm text-gray-500">{user.email}</p>
-              <p className="text-sm text-gray-500">
-                {user.userSports.filter(us => us.userPoints && us.userPoints.length > 0).length} deporte{user.userSports.filter(us => us.userPoints && us.userPoints.length > 0).length !== 1 ? 's' : ''} activo{user.userSports.filter(us => us.userPoints && us.userPoints.length > 0).length !== 1 ? 's' : ''}
-              </p>
             </div>
           </div>
         </div>

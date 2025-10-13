@@ -46,11 +46,6 @@ function SelectSportToPlay() {
         
         setAvailableSports(sportsWithPoints);
         setSportsWithoutPoints(sportsWithoutPoints);
-        
-        // Si solo tiene un deporte configurado y no hay deportes sin configurar, redirigir al perfil general
-        if (sportsWithPoints.length === 1 && sportsWithoutPoints.length === 0) {
-          navigate('/profile');
-        }
       }
     } catch (error) {
       console.error("Error cargando deportes del usuario:", error);
@@ -64,8 +59,8 @@ function SelectSportToPlay() {
   };
 
   const handleSportSelect = (sportId) => {
-    // Navegar al perfil general (implementación futura: perfil específico por deporte)
-    navigate('/profile');
+    // Navegar al perfil específico del deporte
+    navigate(`/profile/${sportId}`);
   };
 
   const handleBackToProfile = () => {
@@ -123,9 +118,14 @@ function SelectSportToPlay() {
         <div className="max-w-2xl w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-black mb-2">¿En qué deporte quieres jugar?</h1>
+            <h1 className="text-3xl font-bold text-black mb-2">
+              {availableSports.length > 1 ? '¿En qué deporte quieres jugar?' : 'Bienvenido a tu deporte'}
+            </h1>
             <p className="text-gray-600">
-              Selecciona el deporte para ver tu perfil y puntaje actual
+              {availableSports.length > 1 
+                ? 'Selecciona el deporte para ver tu perfil y puntaje actual'
+                : 'Selecciona para ver tu perfil y puntaje actual'
+              }
             </p>
           </div>
 
