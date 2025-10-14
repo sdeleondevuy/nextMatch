@@ -130,81 +130,39 @@ function SelectSportToPlay() {
           </div>
 
           {/* Sports Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {availableSports.map((userSport, index) => (
-              <div
-                key={userSport.sport.id}
-                onClick={() => handleSportSelect(userSport.sport.id)}
-                className="bg-white rounded-xl border-2 border-gray-200 p-6 cursor-pointer hover:border-blue-300 hover:shadow-lg transition-all duration-200 group"
-              >
-                {/* Sport Icon/Number */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <span className="text-blue-600 font-bold text-lg">{index + 1}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {getPoints(userSport.userPoints).actualPoints}
-                    </div>
-                    <div className="text-sm text-gray-500">puntos actuales</div>
-                  </div>
-                </div>
-
-                {/* Sport Name */}
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {userSport.sport.name}
-                </h3>
-
-                {/* Points Info */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Puntos iniciales:</span>
-                    <span className="font-medium">
-                      {getPoints(userSport.userPoints).initPoints}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Puntos actuales:</span>
-                    <span className={`font-medium ${
-                      getPoints(userSport.userPoints).actualPoints >= getPoints(userSport.userPoints).initPoints
-                        ? 'text-green-600' 
-                        : 'text-red-600'
-                    }`}>
-                      {getPoints(userSport.userPoints).actualPoints}
-                    </span>
-                  </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-6">
+            {availableSports.map((userSport) => {
+              // Generar nombre de archivo de imagen desde el nombre del deporte
+              const imageName = userSport.sport.name
+                .toLowerCase()
+                .normalize('NFD') // Separar acentos
+                .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+                .replace(/\s+/g, '-');
+              const imagePath = `/images/sports/${imageName}.png`;
+              
+              return (
+                <div
+                  key={userSport.sport.id}
+                  onClick={() => handleSportSelect(userSport.sport.id)}
+                  className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+                >
+                  {/* Sport Image - 100% del componente */}
+                  <img 
+                    src={imagePath}
+                    alt={userSport.sport.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Si la imagen no existe, mostrar un placeholder
+                      e.target.src = '/images/jsm-logo.png';
+                      e.target.classList.add('object-contain', 'p-8');
+                    }}
+                  />
                   
-                  {/* Progress Bar */}
-                  <div className="mt-3">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${
-                          getPoints(userSport.userPoints).actualPoints >= getPoints(userSport.userPoints).initPoints
-                            ? 'bg-green-500' 
-                            : 'bg-red-500'
-                        }`}
-                        style={{
-                          width: `${Math.min(100, 
-                            (getPoints(userSport.userPoints).actualPoints / getPoints(userSport.userPoints).initPoints) * 100
-                          )}%`
-                        }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500 mt-1">
-                      <span>0</span>
-                      <span>{getPoints(userSport.userPoints).initPoints}</span>
-                    </div>
-                  </div>
+                  {/* Overlay sutil on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-
-                {/* Hover Effect */}
-                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="text-blue-600 text-sm font-medium">
-                    → Ver perfil de {userSport.sport.name}
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Actions */}
