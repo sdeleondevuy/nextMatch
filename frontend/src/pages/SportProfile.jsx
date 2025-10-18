@@ -112,7 +112,7 @@ function SportProfile() {
   const isPositive = pointsDifference >= 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-royal-50">
       <AuthNavbar />
       
       <div className="flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
@@ -121,7 +121,7 @@ function SportProfile() {
           <div className="text-center mb-8">
             <button
               onClick={handleBackToSports}
-              className="text-blue-600 hover:text-blue-800 mb-4 flex items-center mx-auto transition-colors"
+              className="text-cyan-600 hover:text-cyan-800 mb-4 flex items-center mx-auto transition-colors"
             >
               ← Volver a deportes
             </button>
@@ -135,12 +135,12 @@ function SportProfile() {
 
           {/* Level Card - Destacado */}
           {levelInfo && (
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 mb-6 shadow-xl text-white">
+            <div className="bg-gradient-to-r from-royal-500 to-cyan-500 rounded-2xl p-6 mb-6 shadow-xl text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium mb-1">Tu Nivel Actual</p>
+                  <p className="text-cyan-100 text-sm font-medium mb-1">Tu Nivel Actual</p>
                   <h2 className="text-5xl font-bold mb-2">Nivel {levelInfo.nivel}</h2>
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-cyan-100 text-sm">
                     Rango: {levelInfo.rangoMin} - {levelInfo.rangoMax} puntos
                   </p>
                 </div>
@@ -148,7 +148,7 @@ function SportProfile() {
                   <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-2">
                     <span className="text-4xl font-bold">{levelInfo.nivel}</span>
                   </div>
-                  <p className="text-sm text-blue-100">
+                  <p className="text-sm text-cyan-100">
                     {points.actualPoints} pts
                   </p>
                 </div>
@@ -240,7 +240,7 @@ function SportProfile() {
             <div className="space-y-3">
               <button
                 onClick={() => navigate(`/play/${selectedSport.sport.id}`)}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+                className="w-full bg-royal-500 text-white py-3 px-4 rounded-lg hover:bg-royal-600 transition-colors font-medium text-lg"
               >
                 🎾 Jugar {selectedSport.sport.name}
               </button>
@@ -248,13 +248,13 @@ function SportProfile() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => navigate('/profile')}
-                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-gray-700 font-medium"
+                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-royal-500 hover:bg-royal-50 transition-colors text-gray-700 font-medium"
                 >
                   👤 Perfil General
                 </button>
                 <button
                   onClick={handleBackToSports}
-                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-gray-700 font-medium"
+                  className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-royal-500 hover:bg-royal-50 transition-colors text-gray-700 font-medium"
                 >
                   🔄 Cambiar Deporte
                 </button>

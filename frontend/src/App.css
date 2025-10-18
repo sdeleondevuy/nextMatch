@@ -16,19 +16,19 @@
 }
 
 .message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #f7fef0;
+  color: #375c0f;
+  border: 1px solid #94E41D;
 }
 
 .message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 
 .error {
-  color: #dc3545;
+  color: #dc2626;
   font-size: 0.875rem;
   margin-top: 0.25rem;
   display: block;
@@ -52,7 +52,7 @@ select {
 
 select:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 0 2px rgba(29, 74, 228, 0.2);
 }
 
 select option {
@@ -70,7 +70,7 @@ select option:hover {
 }
 
 select option:checked {
-  background-color: #22c55e;
+  background-color: #1D4AE4;
   color: white;
 }
 

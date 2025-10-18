@@ -31,7 +31,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
 
@@ -84,30 +84,30 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* Login button - Verde oscuro */
+/* Login button - Azul Real */
 .home-btn-login {
-  background: rgba(21, 128, 61, 0.9); /* Verde oscuro */
+  background: rgba(29, 74, 228, 0.9); /* Azul Real */
   color: white;
-  border-color: rgba(21, 128, 61, 0.3);
+  border-color: rgba(29, 74, 228, 0.3);
 }
 
 .home-btn-login:hover {
-  background: rgba(21, 128, 61, 1);
+  background: rgba(29, 74, 228, 1);
   color: white;
-  box-shadow: 0 8px 25px rgba(21, 128, 61, 0.4);
+  box-shadow: 0 8px 25px rgba(29, 74, 228, 0.4);
 }
 
-/* Register button - Azul Francia */
+/* Register button - Azul Cian */
 .home-btn-register {
-  background: rgba(30, 64, 175, 0.9); /* Azul Francia */
+  background: rgba(29, 160, 228, 0.9); /* Azul Cian */
   color: white;
-  border-color: rgba(30, 64, 175, 0.3);
+  border-color: rgba(29, 160, 228, 0.3);
 }
 
 .home-btn-register:hover {
-  background: rgba(30, 64, 175, 1);
+  background: rgba(29, 160, 228, 1);
   color: white;
-  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+  box-shadow: 0 8px 25px rgba(29, 160, 228, 0.4);
 }
 
 /* Responsive adjustments */

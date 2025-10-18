@@ -199,7 +199,7 @@ function Profile() {
                       onChange={handleChange}
                       required
                       disabled={loading}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                   </div>
@@ -215,7 +215,7 @@ function Profile() {
                       onChange={handleChange}
                       required
                       disabled={loading}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                   </div>
@@ -235,7 +235,7 @@ function Profile() {
                       required
                       disabled={loading}
                       pattern="[a-zA-Z0-9_]+"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
                   </div>
@@ -251,7 +251,7 @@ function Profile() {
                       onChange={handleChange}
                       required
                       disabled={loading}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                   </div>
@@ -269,7 +269,7 @@ function Profile() {
                       onChange={handleChange}
                       required
                       disabled={loading}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.birthDate && <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>}
                   </div>
@@ -285,7 +285,7 @@ function Profile() {
                       onChange={handleChange}
                       required
                       disabled={loading}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
                     />
                     {errors.department && <p className="mt-1 text-sm text-red-600">{errors.department}</p>}
                   </div>
@@ -372,7 +372,7 @@ function Profile() {
                       {userSports.map((sport) => (
                         <span
                           key={sport.id}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-lime-100 text-lime-800"
                         >
                           🎾 {sport.name}
                         </span>
@@ -411,7 +411,7 @@ function Profile() {
                 <div className="space-y-3">
                   <button 
                     onClick={() => navigate('/selectSport')}
-                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="w-full px-4 py-3 bg-royal-500 text-white rounded-lg hover:bg-royal-600 transition-colors text-sm font-medium"
                   >
                     🎾 Seleccionar Deporte para Jugar
                   </button>
@@ -435,13 +435,13 @@ function Profile() {
             {message && (
               <div className={`mt-4 p-4 rounded-lg ${
                 message.includes("✅") || message.includes("🎉") 
-                  ? "bg-green-50 text-green-800 border border-green-200" 
+                  ? "bg-lime-50 text-lime-800 border border-lime-200" 
                   : "bg-red-50 text-red-800 border border-red-200"
               }`}>
                 <div className="flex">
                   <div className="flex-shrink-0">
                     {message.includes("✅") || message.includes("🎉") ? (
-                      <span className="text-green-400">✓</span>
+                      <span className="text-lime-500">✓</span>
                     ) : (
                       <span className="text-red-400">✕</span>
                     )}

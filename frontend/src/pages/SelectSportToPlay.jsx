@@ -144,7 +144,7 @@ function SelectSportToPlay() {
                 <div
                   key={userSport.sport.id}
                   onClick={() => handleSportSelect(userSport.sport.id)}
-                  className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+                  className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 group border-2 border-transparent hover:border-lime-300"
                 >
                   {/* Sport Image - 100% del componente */}
                   <img 
@@ -159,7 +159,7 @@ function SelectSportToPlay() {
                   />
                   
                   {/* Overlay sutil on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-royal-500/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
               );
             })}
@@ -170,14 +170,14 @@ function SelectSportToPlay() {
             {sportsWithoutPoints.length > 0 && (
               <button
                 onClick={() => navigate('/initpoints')}
-                className="btn-primary w-full py-3 text-lg font-medium mb-4"
+                className="bg-royal-500 hover:bg-royal-600 text-white w-full py-3 text-lg font-medium mb-4 rounded-lg transition-colors"
               >
                 ⚙️ Configurar Puntos para {sportsWithoutPoints.length} Deporte{sportsWithoutPoints.length !== 1 ? 's' : ''} Restante{sportsWithoutPoints.length !== 1 ? 's' : ''}
               </button>
             )}
             <button
               onClick={handleBackToProfile}
-              className="text-gray-600 hover:text-gray-800 transition-colors"
+              className="text-cyan-600 hover:text-cyan-800 transition-colors"
             >
               ← Volver al perfil general
             </button>

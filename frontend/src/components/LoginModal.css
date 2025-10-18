@@ -125,8 +125,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #1D4AE4;
+  box-shadow: 0 0 0 3px rgba(29, 74, 228, 0.1);
 }
 
 .form-group input:disabled {
@@ -164,14 +164,14 @@
 }
 
 .submit-btn {
-  background: #21803d; /* Verde oscuro como el botón original */
+  background: #1D4AE4; /* Azul Real */
   color: white;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #166534;
+  background: #1a3ec7;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(33, 128, 61, 0.4);
+  box-shadow: 0 4px 12px rgba(29, 74, 228, 0.4);
 }
 
 .submit-btn:disabled {
@@ -209,7 +209,7 @@
 .register-link button {
   background: none;
   border: none;
-  color: #1e40af; /* Azul Francia */
+  color: #1DA0E4; /* Azul Cian */
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
@@ -217,7 +217,7 @@
 }
 
 .register-link button:hover {
-  color: #1d4ed8;
+  color: #1a8bc7;
 }
 
 /* Animations */
