@@ -136,7 +136,7 @@ function RegisterStep2() {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -157,7 +157,7 @@ function RegisterStep2() {
                     required
                     disabled={loading}
                     pattern="[a-zA-Z0-9_]+"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
                   />
                   {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
                 </div>
@@ -173,7 +173,7 @@ function RegisterStep2() {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
                     style={{ width: '100%' }}
                   >
                     {departments.map(dept => (
@@ -200,7 +200,7 @@ function RegisterStep2() {
                   required
                   disabled={loading}
                   minLength="6"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors text-base"
                 />
                 {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
               </div>
@@ -216,7 +216,7 @@ function RegisterStep2() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 btn-primary flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-royal-500 hover:bg-royal-600 text-white flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={loading}
                 >
                   {loading ? (
@@ -235,13 +235,13 @@ function RegisterStep2() {
             {message && (
               <div className={`mt-4 p-4 rounded-lg ${
                 message.includes("✅") || message.includes("🎉") 
-                  ? "bg-green-50 text-green-800 border border-green-200" 
+                  ? "bg-lime-50 text-lime-800 border border-lime-200" 
                   : "bg-red-50 text-red-800 border border-red-200"
               }`}>
                 <div className="flex">
                   <div className="flex-shrink-0">
                     {message.includes("✅") || message.includes("🎉") ? (
-                      <span className="text-green-400">✓</span>
+                      <span className="text-lime-500">✓</span>
                     ) : (
                       <span className="text-red-400">✕</span>
                     )}

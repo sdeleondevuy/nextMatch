@@ -95,7 +95,7 @@ function RegisterStep1() {
                     value={form.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 transition-colors text-base"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                 </div>
@@ -112,7 +112,7 @@ function RegisterStep1() {
                     value={form.lastName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 transition-colors text-base"
                   />
                   {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
                 </div>
@@ -132,7 +132,7 @@ function RegisterStep1() {
                   onChange={handleChange}
                   required
                   pattern="[0-9]+"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-base"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 transition-colors text-base"
                 />
                 {errors.legalId && <p className="mt-1 text-sm text-red-600">{errors.legalId}</p>}
               </div>
@@ -150,7 +150,7 @@ function RegisterStep1() {
                     value={form.birthDate}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 transition-colors text-base"
                   />
                   {errors.birthDate && <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>}
                 </div>
@@ -165,7 +165,7 @@ function RegisterStep1() {
                     value={form.gender}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-base"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-royal-500 focus:border-royal-500 transition-colors text-base"
                     style={{ width: '100%' }}
                   >
                     <option value="Male">Masculino</option>
@@ -179,7 +179,7 @@ function RegisterStep1() {
               <div>
                 <button
                   type="submit"
-                  className="btn-primary w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300"
+                  className="bg-royal-500 hover:bg-royal-600 text-white w-full flex justify-center py-3 px-4 text-sm font-medium rounded-lg transition-all duration-300"
                 >
                   Continuar
                 </button>
@@ -192,7 +192,7 @@ function RegisterStep1() {
                 ¿Ya tienes cuenta?{" "}
                 <Link 
                   to="/" 
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-medium text-cyan-600 hover:text-cyan-500 transition-colors"
                 >
                   Inicia sesión aquí
                 </Link>
